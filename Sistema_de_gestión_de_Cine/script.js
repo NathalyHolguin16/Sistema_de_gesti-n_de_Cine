@@ -28,14 +28,14 @@ const funciones = [
   { id: 4, peliculaId: 2, fechaHora: "2025-06-02 22:00" }
 ];
 
-// Mostrar cartelera con géneros de colores y botón rojo
+
 const peliculasGrid = document.getElementById('peliculasGrid');
 function cargarPeliculas() {
   peliculasGrid.innerHTML = "";
   peliculas.forEach(p => {
     const card = document.createElement('div');
     card.className = 'pelicula-card';
-    // El género se convierte a minúsculas y espacios a guiones para la clase CSS
+    
     const generoClase = "genero " + p.genero.toLowerCase().replace(/ /g, "-");
     card.innerHTML = `
       <img src="${p.poster}" alt="${p.titulo}" class="pelicula-poster" />
@@ -49,7 +49,7 @@ function cargarPeliculas() {
   });
 }
 
-// Mostrar funciones y detalles
+
 window.verFunciones = function(peliculaId) {
   const pelicula = peliculas.find(p => p.id === peliculaId);
   document.getElementById('peliculaTitulo').textContent = pelicula.titulo;
@@ -74,7 +74,7 @@ window.verFunciones = function(peliculaId) {
   showSection('funciones');
 };
 
-// Mostrar/ocultar secciones
+
 function showSection(seccion) {
   document.getElementById('cartelera').style.display = 'none';
   document.getElementById('funciones').style.display = 'none';
@@ -83,7 +83,7 @@ function showSection(seccion) {
   document.getElementById(seccion).style.display = 'block';
 }
 
-// --- RESERVAS ---
+
 const peliculaSelect = document.getElementById('peliculaSelect');
 const funcionSelect = document.getElementById('funcionSelect');
 
@@ -139,7 +139,7 @@ function actualizarResumenCompra() {
   document.getElementById('fechaHoraCompra').textContent = ahora.toLocaleString();
 }
 
-// Enviar reserva
+
 const reservaForm = document.getElementById('reservaForm');
 reservaForm.addEventListener('submit', (e) => {
   e.preventDefault();
@@ -148,7 +148,7 @@ reservaForm.addEventListener('submit', (e) => {
   showSection('cartelera');
 });
 
-// --- ADMIN ---
+
 document.getElementById('empleadoForm').addEventListener('submit', function(e) {
   e.preventDefault();
   const nombre = document.getElementById('nombreEmpleado').value;
@@ -166,7 +166,7 @@ document.getElementById('empleadoForm').addEventListener('submit', function(e) {
   this.reset();
 });
 
-// Inicialización
+
 cargarPeliculas();
 llenarPeliculasSelect();
 llenarFuncionesSelect(peliculaSelect.value);
