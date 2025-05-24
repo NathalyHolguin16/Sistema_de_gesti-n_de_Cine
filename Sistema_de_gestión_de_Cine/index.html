@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cine fantástico - Cartelera</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header>
+  <h1>Cine fantástico</h1>
+  <nav>
+    <a onclick="showSection('cartelera')">Inicio</a>
+    <a onclick="showSection('cartelera')">Cartelera</a>
+    <a onclick="showSection('reservas')">Reservas</a>
+  </nav>
+</header>
+
+<main>
+  <section id="cartelera">
+    <h2>Películas en cartelera</h2>
+    <div class="peliculas-grid" id="peliculasGrid">
+    </div>
+  </section>
+
+  <section id="funciones">
+    <h2>Funciones - <span id="peliculaTitulo"></span></h2>
+    <div class="funcion-lista" id="funcionLista"></div>
+    <button onclick="showSection('cartelera')">Volver a Cartelera</button>
+  </section>
+
+  <section id="reservas">
+    <h2>Reservar Boleto</h2>
+    <form id="reservaForm">
+      <label for="peliculaSelect">Película:</label>
+      <select id="peliculaSelect" required></select>
+
+      <label for="funcionSelect">Función:</label>
+      <select id="funcionSelect" required></select>
+
+      <label for="nombreCliente">Nombre completo:</label>
+      <input type="text" id="nombreCliente" required />
+
+      <label for="emailCliente">Email:</label>
+      <input type="email" id="emailCliente" required />
+
+      <button type="submit" class="reservar-btn">Reservar</button>
+    </form>
+    <button id="cancelarBtn" onclick="showSection('cartelera')">Cancelar</button>
+  </section>
+</main>
+
+<footer>
+  <p>&copy; 2025 Cine Fantástico</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
+
+

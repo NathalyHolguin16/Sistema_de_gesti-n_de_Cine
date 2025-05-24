@@ -1,0 +1,141 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #121212;
+  color: #fff;
+}
+header {
+  background: #1f1f1f;
+  padding: 1rem;
+  text-align: center;
+}
+nav a {
+  color: #fff;
+  margin: 0 1rem;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: bold;
+}
+nav a:hover {
+  text-decoration: underline;
+}
+main {
+  max-width: 960px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+.peliculas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(180px,1fr));
+  gap: 1rem;
+}
+.pelicula-card {
+  background: #222;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.pelicula-card:hover {
+  transform: scale(1.05);
+}
+.pelicula-poster {
+  width: 100%;
+  height: 270px;
+  object-fit: cover;
+}
+.pelicula-info {
+  padding: 0.5rem 1rem 1rem;
+}
+.pelicula-info h3 {
+  margin: 0.5rem 0 0.3rem;
+}
+.pelicula-info p {
+  font-size: 0.9rem;
+  color: #bbb;
+  margin: 0;
+}
+
+
+.genero.ciencia-ficción {
+  color: #00bfff; 
+  font-weight: bold;
+}
+
+.genero.musical {
+  color: #ff69b4; 
+  font-weight: bold;
+}
+
+#funciones {
+  display: none;
+}
+.funcion-lista {
+  background: #222;
+  padding: 1rem;
+  border-radius: 8px;
+}
+.funcion-lista button {
+  background: #e50914;
+  border: none;
+  padding: 0.6rem 1rem;
+  margin: 0.3rem;
+  color: white;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.funcion-lista button:hover {
+  background: #b00710;
+}
+
+#reservas {
+  display: none;
+}
+label {
+  display: block;
+  margin: 0.5rem 0 0.2rem;
+}
+select, input[type="text"], input[type="email"] {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: none;
+  margin-bottom: 1rem;
+}
+button.reservar-btn {
+  background: #28a745;
+  border: none;
+  padding: 0.8rem 1.2rem;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 4px;
+}
+button.reservar-btn:hover {
+  background: #1e7e34;
+}
+
+
+#cancelarBtn {
+  margin-top: 1rem;
+  background: #dc3545; 
+  border: none;
+  padding: 0.8rem 1.2rem;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 4px;
+  display: inline-block;
+}
+#cancelarBtn:hover {
+  background: #b02a37;
+}
+
+footer {
+  text-align: center;
+  padding: 1rem;
+  color: #666;
+  margin-top: 3rem;
+}
+
