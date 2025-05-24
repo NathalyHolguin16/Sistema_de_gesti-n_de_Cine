@@ -2,9 +2,9 @@ const peliculas = [
   {
     id: 1,
     titulo: "Inception",
-    genero: "Ciencia ficción",
+    genero: "Drama",
     duracion: 148,
-    sinopsis: "Un ladrón que roba secretos a través de los sueños",
+    sinopsis: "un hombre inocente que es acusado del asesinato de su mujer. Tras ser condenado a cadena perpetua, es enviado a la cárcel de Shawshank, en Maine.",
     poster: "Shawshank.jpg"
   },
   {
