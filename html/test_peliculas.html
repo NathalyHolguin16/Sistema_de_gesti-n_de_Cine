@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Test Películas</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <h2>Pruebas de Películas</h2>
+  <form id="formAgregarPelicula" enctype="multipart/form-data">
+    <input type="hidden" id="id_pelicula" name="id_pelicula" />
+    <label>Título: <input type="text" id="titulo" name="titulo" required /></label><br>
+    <label>Duración (min): <input type="number" id="duracion_minutos" name="duracion_minutos" required /></label><br>
+    <label>Clasificación: <input type="text" id="clasificacion" name="clasificacion" required /></label><br>
+    <label>Género: <input type="text" id="genero" name="genero" required /></label><br>
+    <label>Sinopsis: <textarea id="sinopsis" name="sinopsis"></textarea></label><br>
+    <label>Imagen: <input type="file" id="imagen" name="imagen" accept="image/*" /></label><br>
+    <button type="submit" id="btnGuardar">Agregar Película</button>
+    <button type="button" id="btnCancelar" style="display:none;">Cancelar edición</button>
+  </form>
+
+  <h3>Películas actuales</h3>
+  <div id="peliculasGrid"></div>
+
+  <script src="../js/script.js"></script>
+  <script>
+    // Manejo del formulario para agregar o editar
+    document.getElementById('formAgregarPelicula').onsubmit = async function(e) {
+      e.preventDefault();
+      const form = this;
+      const formData = new FormData(form);
+
+      if (document.getElementById('id_pelicula').value) {
+        formData.append('id_pelicula', document.getElementById('id_pelicula').value);
+        formData.append('modo', 'editar');
+      } else {
+        formData.append('modo', 'agregar');
+      }
+
+      await fetch('../php/peliculas.php', {
+        method: 'POST',
+        body: formData
+      });
+
+      form.reset();
+      document.getElementById('id_pelicula').value = "";
+      document.getElementById('btnGuardar').textContent = "Agregar Película";
+      document.getElementById('btnCancelar').style.display = "none";
+      cargarPeliculas();
+    };
+
+    // Función para editar película (rellena el formulario)
+    window.editarPelicula = function(id) {
+      fetch('../php/peliculas.php')
+        .then(res => res.json())
+        .then(peliculas => {
+          const peli = peliculas.find(p => p.id_pelicula == id);
+          if (peli) {
+            document.getElementById('id_pelicula').value = peli.id_pelicula;
+            document.getElementById('titulo').value = peli.titulo;
+            document.getElementById('duracion_minutos').value = peli.duracion_minutos;
+            document.getElementById('clasificacion').value = peli.clasificacion;
+            document.getElementById('genero').value = peli.genero;
+            document.getElementById('sinopsis').value = peli.sinopsis;
+            document.getElementById('btnGuardar').textContent = "Guardar Cambios";
+            document.getElementById('btnCancelar').style.display = "inline";
+          }
+        });
+    };
+
+    // Cancelar edición
+    document.getElementById('btnCancelar').onclick = function() {
+      document.getElementById('formAgregarPelicula').reset();
+      document.getElementById('id_pelicula').value = "";
+      this.style.display = "none";
+      document.getElementById('btnGuardar').textContent = "Agregar Película";
+    };
+
+    // Sobrescribe la función eliminar para refrescar la lista
+    window.eliminarPelicula = async function(id) {
+      await fetch('../php/peliculas.php', {
+        method: 'DELETE',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `id_pelicula=${id}`
+      });
+      cargarPeliculas();
+    };
+
+    // Cargar películas al iniciar
+    cargarPeliculas();
+  </script>
+</body>
+</html>
