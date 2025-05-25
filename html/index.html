@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cine fantástico - Cartelera</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+<header>
+  <h1>Cine fantástico</h1>
+  <nav>
+    <a onclick="showSection('cartelera')">Inicio</a>
+    <a onclick="showSection('cartelera')">Cartelera</a>
+    <a onclick="showSection('reservas')">Reservas</a>
+    <a onclick="showSection('admin')">Administrador</a>
+  </nav>
+</header>
+
+<main>
+  <section id="cartelera">
+    <h2>Películas en cartelera</h2>
+    <div class="peliculas-grid" id="peliculasGrid"></div>
+  </section>
+
+  <section id="admin" style="display:none;">
+    <h2>Registro de Empleados</h2>
+    <form id="empleadoForm">
+      <label for="nombreEmpleado">Nombre del empleado:</label>
+      <input type="text" id="nombreEmpleado" required />
+
+      <label for="cargoEmpleado">Cargo:</label>
+      <select id="cargoEmpleado" required>
+        <option value="taquillero">Taquillero</option>
+        <option value="admin">Administrador</option>
+      </select>
+
+      <label for="usuarioEmpleado">Usuario:</label>
+      <input type="text" id="usuarioEmpleado" required />
+
+      <label for="contrasenaEmpleado">Contraseña:</label>
+      <input type="password" id="contrasenaEmpleado" required />
+
+      <button type="submit">Registrar Empleado</button>
+    </form>
+    <div id="listaEmpleados"></div>
+  </section>
+
+  <section id="funciones" style="display:none;">
+    <h2>Funciones - <span id="peliculaTitulo"></span></h2>
+    <div id="peliculaDetalles">
+      <p><strong>Sinopsis:</strong> <span id="sinopsis"></span></p>
+      <p><strong>Duración:</strong> <span id="duracion"></span></p>
+      <p><strong>Sala:</strong> <span id="sala"></span></p>
+      <p><strong>Precio:</strong> $<span id="precio"></span></p>
+    </div>
+    <div class="funcion-lista" id="funcionLista"></div>
+    <button onclick="showSection('cartelera')">Volver a Cartelera</button>
+  </section>
+
+  <section id="reservas" style="display:none;">
+    <h2>Reservar Boleto</h2>
+    <form id="reservaForm">
+      <label for="peliculaSelect">Película:</label>
+      <select id="peliculaSelect" required></select>
+
+      <label for="funcionSelect">Función:</label>
+      <select id="funcionSelect" required></select>
+
+      <label for="nombreCliente">Nombre completo:</label>
+      <input type="text" id="nombreCliente" required />
+
+      <label for="emailCliente">Email:</label>
+      <input type="email" id="emailCliente" required />
+
+      <label for="numEntradas">Número de entradas:</label>
+      <input type="number" id="numEntradas" min="1" value="1" required />
+
+      <div id="resumenCompra" style="margin-top:10px;">
+        <p><strong>Fecha y hora de compra:</strong> <span id="fechaHoraCompra"></span></p>
+        <p><strong>Monto total pagado:</strong> $<span id="montoTotal"></span></p>
+      </div>
+
+      <button type="submit" class="reservar-btn">Reservar</button>
+    </form>
+    <button id="cancelarBtn" onclick="showSection('cartelera')">Cancelar</button>
+  </section>
+</main>
+
+<footer>
+  <p>&copy; 2025 Cine Fantástico</p>
+</footer>
+
+<script src="../js/script.js"></script>
+</body>
+</html>
+
+
