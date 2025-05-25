@@ -1,3 +1,6 @@
+// Detecta si estamos en el panel de administración
+const esAdmin = window.location.pathname.includes('test_peliculas.html');
+
 const peliculasGrid = document.getElementById('peliculasGrid');
 async function cargarPeliculas() {
   const res = await fetch('../php/peliculas.php');
@@ -15,16 +18,19 @@ async function cargarPeliculas() {
         <p>Duración: ${p.duracion_minutos} min</p>
         <p>Clasificación: ${p.clasificacion}</p>
         <button class="ver-funciones-btn" onclick="verFunciones(${p.id_pelicula})">Ver funciones</button>
-        <button onclick="editarPelicula(${p.id_pelicula})">Editar</button>
-        <button onclick="eliminarPelicula(${p.id_pelicula})">Eliminar</button>
+        ${esAdmin ? `
+          <button onclick="editarPelicula(${p.id_pelicula})">Editar</button>
+          <button onclick="eliminarPelicula(${p.id_pelicula})">Eliminar</button>
+        ` : ''}
       </div>
     `;
     peliculasGrid.appendChild(card);
   });
 }
 
-// Eliminar película (igual que antes)
+// Eliminar película (solo disponible en admin)
 async function eliminarPelicula(id_pelicula) {
+  if (!esAdmin) return;
   await fetch('../php/peliculas.php', {
     method: 'DELETE',
     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -36,27 +42,29 @@ async function eliminarPelicula(id_pelicula) {
 // Llama a cargarPeliculas al iniciar
 cargarPeliculas();
 
-// Manejo del formulario para agregar o editar
+// Manejo del formulario para agregar o editar (solo en admin)
 const form = document.getElementById('formAgregarPelicula');
-form.onsubmit = async function(e) {
-  e.preventDefault();
-  const formData = new FormData(form);
+if (form) {
+  form.onsubmit = async function(e) {
+    e.preventDefault();
+    const formData = new FormData(form);
 
-  if (document.getElementById('id_pelicula').value) {
-    formData.append('id_pelicula', document.getElementById('id_pelicula').value);
-    formData.append('modo', 'editar');
-  } else {
-    formData.append('modo', 'agregar');
-  }
+    if (document.getElementById('id_pelicula').value) {
+      formData.append('id_pelicula', document.getElementById('id_pelicula').value);
+      formData.append('modo', 'editar');
+    } else {
+      formData.append('modo', 'agregar');
+    }
 
-  await fetch('../php/peliculas.php', {
-    method: 'POST',
-    body: formData
-  });
-  form.reset();
-  document.getElementById('id_pelicula').value = "";
-  document.getElementById('btnGuardar').textContent = "Agregar Película";
-  document.getElementById('btnCancelar').style.display = "none";
-  cargarPeliculas();
-};
+    await fetch('../php/peliculas.php', {
+      method: 'POST',
+      body: formData
+    });
+    form.reset();
+    document.getElementById('id_pelicula').value = "";
+    document.getElementById('btnGuardar').textContent = "Agregar Película";
+    document.getElementById('btnCancelar').style.display = "none";
+    cargarPeliculas();
+  };
+}
 
