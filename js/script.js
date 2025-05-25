@@ -1,13 +1,14 @@
 const peliculas = [
   {
     id: 1,
-    titulo: "Shawshank Redemption",
+    titulo: "Inception",
     genero: "Drama",
     duracion: 148,
-    sinopsis: "Un hombre inocente que es acusado del asesinato de su mujer.",
+    sinopsis: "Un ladrón que roba secretos corporativos a través del uso de la tecnología de sueños compartidos.",
     sala: "Sala 1",
     precio: 5.00,
-    poster: "../resources/Shawshank.jpg"
+    poster: "../resources/Shawshank.jpg",
+    clasificacion: "+12 años"
   },
   {
     id: 2,
@@ -17,7 +18,8 @@ const peliculas = [
     sinopsis: "Historia de un visionario que crea un espectáculo sin igual.",
     sala: "Sala 2",
     precio: 4.50,
-    poster: "../resources/El Gran Showman.jpg"
+    poster: "../resources/El Gran Showman.jpg",
+    clasificacion: "Todo público"
   }
 ];
 
@@ -28,20 +30,20 @@ const funciones = [
   { id: 4, peliculaId: 2, fechaHora: "2025-06-02 22:00" }
 ];
 
-
+// Mostrar cartelera con géneros de colores y botón rojo
 const peliculasGrid = document.getElementById('peliculasGrid');
 function cargarPeliculas() {
   peliculasGrid.innerHTML = "";
   peliculas.forEach(p => {
     const card = document.createElement('div');
     card.className = 'pelicula-card';
-    
     const generoClase = "genero " + p.genero.toLowerCase().replace(/ /g, "-");
     card.innerHTML = `
       <img src="${p.poster}" alt="${p.titulo}" class="pelicula-poster" />
       <div class="pelicula-info">
         <h3>${p.titulo}</h3>
         <p class="${generoClase}">${p.genero}</p>
+        <p class="clasificacion">${p.clasificacion}</p>
         <button class="ver-funciones-btn" onclick="verFunciones(${p.id})">Ver funciones</button>
       </div>
     `;
@@ -49,7 +51,7 @@ function cargarPeliculas() {
   });
 }
 
-
+// Mostrar funciones y detalles
 window.verFunciones = function(peliculaId) {
   const pelicula = peliculas.find(p => p.id === peliculaId);
   document.getElementById('peliculaTitulo').textContent = pelicula.titulo;
@@ -74,7 +76,7 @@ window.verFunciones = function(peliculaId) {
   showSection('funciones');
 };
 
-
+// Mostrar/ocultar secciones
 function showSection(seccion) {
   document.getElementById('cartelera').style.display = 'none';
   document.getElementById('funciones').style.display = 'none';
@@ -83,7 +85,7 @@ function showSection(seccion) {
   document.getElementById(seccion).style.display = 'block';
 }
 
-
+// --- RESERVAS ---
 const peliculaSelect = document.getElementById('peliculaSelect');
 const funcionSelect = document.getElementById('funcionSelect');
 
@@ -139,7 +141,7 @@ function actualizarResumenCompra() {
   document.getElementById('fechaHoraCompra').textContent = ahora.toLocaleString();
 }
 
-
+// Enviar reserva
 const reservaForm = document.getElementById('reservaForm');
 reservaForm.addEventListener('submit', (e) => {
   e.preventDefault();
@@ -148,7 +150,7 @@ reservaForm.addEventListener('submit', (e) => {
   showSection('cartelera');
 });
 
-
+// --- ADMIN ---
 document.getElementById('empleadoForm').addEventListener('submit', function(e) {
   e.preventDefault();
   const nombre = document.getElementById('nombreEmpleado').value;
@@ -166,9 +168,8 @@ document.getElementById('empleadoForm').addEventListener('submit', function(e) {
   this.reset();
 });
 
-
+// Inicialización
 cargarPeliculas();
 llenarPeliculasSelect();
 llenarFuncionesSelect(peliculaSelect.value);
 showSection('cartelera');
-

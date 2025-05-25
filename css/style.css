@@ -1,3 +1,10 @@
+.rojo {
+  color: #e50914;
+}
+.dorado {
+  color: #8a770a;
+}
+
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -46,6 +53,9 @@ main {
 }
 .pelicula-info {
   padding: 0.5rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 }
 .pelicula-info h3 {
   margin: 0.5rem 0 0.3rem;
@@ -82,6 +92,13 @@ main {
   font-weight: bold;
 }
 
+/* Clasificación de edad */
+.clasificacion {
+  color: #ff9800;
+  font-weight: bold;
+  margin: 0.3em 0 0.5em 0;
+}
+
 /* Botón "Ver funciones" en rojo y ancho */
 .ver-funciones-btn {
   background: #e50914;
@@ -95,6 +112,7 @@ main {
   transition: background 0.2s;
   width: 100%;
   display: block;
+  align-self: stretch;
 }
 .ver-funciones-btn:hover {
   background: #b00710;
