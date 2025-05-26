@@ -245,3 +245,318 @@ footer {
   color: #fff;
 }
 
+/* --- MEJORAS VISUALES PARA LA PÁGINA DE FUNCIONES --- */
+
+.funciones-section {
+  animation: fadeIn 0.8s;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+.pelicula-banner {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  background: #232323;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px #0002;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+.pelicula-banner-img {
+  width: 180px;
+  height: 270px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px #0006;
+  background: #333;
+}
+.pelicula-banner-info {
+  flex: 1;
+  min-width: 220px;
+}
+.titulo-funcion {
+  font-size: 2rem;
+  margin: 0 0 0.7rem 0;
+  color: #ffd700;
+  letter-spacing: 1px;
+}
+.sinopsis {
+  margin: 0.5rem 0 1rem 0;
+  color: #fff;
+  font-size: 1.05rem;
+}
+.pelicula-detalles {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  font-size: 1rem;
+  color: #bbb;
+}
+.pelicula-detalles span {
+  margin-bottom: 0.5rem;
+}
+.subtitulo-funciones {
+  margin-top: 1.5rem;
+  color: #e50914;
+  font-size: 1.3rem;
+  letter-spacing: 1px;
+}
+.funcion-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  margin: 1.5rem 0 2rem 0;
+  justify-content: flex-start;
+  background: none;
+  padding: 0;
+  border-radius: 0;
+}
+.funcion-card {
+  background: #232323;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px #0003;
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 180px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.funcion-card:hover {
+  transform: translateY(-5px) scale(1.03);
+  box-shadow: 0 6px 24px #0006;
+}
+.funcion-hora {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #ffd700;
+  margin-bottom: 0.7rem;
+}
+.reservar-funcion-btn {
+  background: #e50914;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s;
+  margin-top: 0.2rem;
+  width: 100%;
+}
+.reservar-funcion-btn:hover {
+  background: #b00710;
+}
+.volver-btn {
+  display: block;
+  margin: 2rem auto 0 auto;
+  background: #222;
+  color: #fff;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 60%;
+  max-width: 300px;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+}
+.volver-btn:hover {
+  background: #444;
+}
+.mensaje-error {
+  color: #fff;
+  background: #e50914;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 2rem 0;
+  text-align: center;
+  font-weight: bold;
+}
+.mensaje-info {
+  color: #ffd700;
+  background: #232323;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 2rem 0;
+  text-align: center;
+  font-weight: bold;
+}
+@media (max-width: 700px) {
+  .pelicula-banner {
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+  }
+  .pelicula-banner-img {
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+  }
+  .pelicula-banner-info {
+    min-width: 0;
+  }
+  .funcion-lista {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+/* --- MEJORAS VISUALES PARA TESTING-FUNCIONES --- */
+#testing-funciones {
+  background: #232323;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px #0005;
+  padding: 2.5rem 2rem;
+  max-width: 430px;
+  margin: 2.5rem auto;
+  animation: fadeIn 0.8s;
+}
+#testing-funciones h2 {
+  color: #d70f0f;
+  text-align: center;
+  margin-bottom: 2rem;
+  letter-spacing: 1px;
+  font-size: 2rem;
+  font-weight: bold;
+}
+#formAgregarFuncion label {
+  color: #978419;
+  font-weight: bold;
+  margin-top: 1.2rem;
+  display: block;
+  letter-spacing: 0.5px;
+}
+
+#formAgregarFuncion input[type="text"],
+#formAgregarFuncion input[type="datetime-local"],
+#formAgregarFuncion input[type="number"] {
+  
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border-radius: 6px;
+  border: none;
+  margin-bottom: 1.2rem;
+  background: #181818;
+  color: #9c2a2a;
+  font-size: 1.08rem;
+  box-shadow: 0 1px 4px #0002 inset;
+  transition: box-shadow 0.2s;
+}
+#formAgregarFuncion input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #8d7b15;
+}
+#formAgregarFuncion button[type="submit"] {
+  background: linear-gradient(90deg, #e50914 60%, #a79119 100%);
+  color: #0d0d0d;
+  border: none;
+  padding: 0.9rem 1.5rem;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  font-size: 1.15rem;
+  margin-top: 1.2rem;
+  transition: background 0.2s, color 0.2s;
+  box-shadow: 0 2px 8px #0003;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7em;
+}
+#formAgregarFuncion button[type="submit"]:hover {
+  background: linear-gradient(90deg, #ffd700 0%, #e50914 100%);
+  color: #232323;
+}
+#resultadoTesting {
+  margin-top: 2rem;
+  background: #181818;
+  border-radius: 10px;
+  padding: 1.5rem 1.2rem;
+  color: #ffd700;
+  font-size: 1.13rem;
+  box-shadow: 0 2px 8px #0003;
+  text-align: left;
+  animation: fadeIn 0.6s;
+  border-left: 5px solid #d40f23;
+  position: relative;
+}
+#resultadoTesting:before {
+  content: "\f058";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  color: #28a745;
+  font-size: 2rem;
+  position: absolute;
+  left: -2.2rem;
+  top: 0.5rem;
+  animation: pop 0.5s;
+}
+@keyframes pop {
+  0% { transform: scale(0.5);}
+  80% { transform: scale(1.2);}
+  100% { transform: scale(1);}
+}
+#resultadoTesting ul {
+  margin: 0.7em 0 0 1.2em;
+  padding: 0;
+}
+#resultadoTesting li {
+  margin-bottom: 0.4em;
+  color: #fff;
+}
+@media (max-width: 600px) {
+  #testing-funciones {
+    padding: 1.2rem 0.5rem;
+    max-width: 98vw;
+  }
+}
+
+#formAgregarFuncion input[type="datetime-local"] {
+  font-size: 1.18rem;
+  border: 2px solid #cbb641;
+  background: #181818;
+  color: #d70a0a;
+  padding: 0.8rem 1.1rem;
+  border-radius: 8px;
+  margin-bottom: 1.3rem;
+  transition: border 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px #0003;
+}
+#formAgregarFuncion input[type="datetime-local"]:focus {
+  border: 2px solid #e50914;
+  background: #232323;
+  box-shadow: 0 0 0 3px #21212055;
+}
+
+#formAgregarFuncion label i,
+#formAgregarFuncion button i {
+  color: #a7942a !important;
+  margin-right: 0.4em;
+  font-size: 1.2em;
+  vertical-align: middle;
+}
+
+body { 
+
+  background: url('../resources/cine.jpg') no-repeat center center fixed;
+  background-size: cover;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(18,18,18,0.85); 
+  z-index: -1; 
+}
+
+
