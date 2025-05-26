@@ -1,0 +1,44 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #1e1e1e;
+  color: white;
+  text-align: center;
+}
+
+.screen {
+  margin: 20px auto;
+  width: 40%;
+  height: 20px;
+  background-color: #ccc;
+  border-radius: 10px;
+}
+
+.seat-map {
+  display: inline-block;
+  margin-top: 20px;
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+  margin: 5px;
+}
+
+.seat {
+  width: 30px;
+  height: 30px;
+  background-color: #444;
+  margin: 4px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.seat.selected {
+  background-color: #6feaf6;
+}
+
+.seat.occupied {
+  background-color: #999;
+  cursor: not-allowed;
+}
