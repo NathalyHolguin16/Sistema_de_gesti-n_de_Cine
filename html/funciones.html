@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Funciones - Cine Fantástico</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+<header>
+  <h1>
+    <span class="rojo">Cine</span> <span class="dorado">fantástico</span>
+  </h1>
+  <nav>
+    <a href="index.html">Cartelera</a>
+  </nav>
+</header>
+
+<main>
+  <section id="funciones" class="funciones-section">
+    <div class="pelicula-banner">
+      <img id="peliculaPoster" src="../resources/peli_683293c9484d4.jpg" alt="Poster" class="pelicula-banner-img" />
+      <div class="pelicula-banner-info">
+        <h2 id="peliculaTitulo" class="titulo-funcion"></h2>
+        <p class="sinopsis"><strong>Sinopsis:</strong> <span id="sinopsis"></span></p>
+        <div class="pelicula-detalles">
+          <span><strong>Duración:</strong> <span id="duracion"></span></span>
+          <span><strong>Sala:</strong> <span id="sala"></span></span>
+          <span><strong>Precio:</strong> $<span id="precio"></span></span>
+        </div>
+      </div>
+    </div>
+    <h3 class="subtitulo-funciones">Horarios disponibles</h3>
+    <div class="funcion-lista" id="funcionLista"></div>
+    <button class="volver-btn" onclick="window.location.href='index.html'">Volver a Cartelera</button>
+  </section>
+</main>
+
+<footer>
+  <p>&copy; 2025 Cine Fantástico</p>
+</footer>
+<script src="../js/funciones.js"></script>
+</body>
+</html>
