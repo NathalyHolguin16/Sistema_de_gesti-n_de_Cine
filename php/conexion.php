@@ -1,17 +1,21 @@
 <?php
 // Este archivo se encargará de la conexión a la base de datos
-$host = "localhost";
-$port = "5432";
-$dbname = "Gestion_Cine"; 
-$user = "lizzardi";
-$password = "";
+$host = "btcq1ilgyasmbpre8a0s-mysql.services.clever-cloud.com";  
+$port = "3306";           
+$dbname = "btcq1ilgyasmbpre8a0s"; 
+$user = "ueqzaivmbgljiu7p"; 
+$password = "y6iBGJK2p1HSr7bAYCh5";      
 
-$conn = pg_connect("host=$host port=$port dbname=$dbname user=$user password=$password");
+// Crear la conexión con MySQL usando mysqli
+$conn = new mysqli($host, $user, $password, $dbname, $port);
 
-if (!$conn) {
-    die("Conexión fallida: " . pg_last_error());
+// Verificar si la conexión fue exitosa
+if ($conn->connect_error) {
+    die("Conexión fallida: " . $conn->connect_error);
 }
 
-// Opcional: para establecer el charset a utf8
-pg_set_client_encoding($conn, "UTF8");
+// Establecer el charset a utf8
+$conn->set_charset("utf8");
+
+
 ?>
