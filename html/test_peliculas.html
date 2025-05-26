@@ -4,26 +4,91 @@
   <meta charset="UTF-8" />
   <title>Test Películas</title>
   <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
-  <h2>Pruebas de Películas</h2>
-  <form id="formAgregarPelicula" enctype="multipart/form-data">
-    <input type="hidden" id="id_pelicula" name="id_pelicula" />
-    <label>Título: <input type="text" id="titulo" name="titulo" required /></label><br>
-    <label>Duración (min): <input type="number" id="duracion_minutos" name="duracion_minutos" required /></label><br>
-    <label>Clasificación: <input type="text" id="clasificacion" name="clasificacion" required /></label><br>
-    <label>Género: <input type="text" id="genero" name="genero" required /></label><br>
-    <label>Sinopsis: <textarea id="sinopsis" name="sinopsis"></textarea></label><br>
-    <label>Imagen: <input type="file" id="imagen" name="imagen" accept="image/*" /></label><br>
-    <button type="submit" id="btnGuardar">Agregar Película</button>
-    <button type="button" id="btnCancelar" style="display:none;">Cancelar edición</button>
-  </form>
+  <h2 class="titulo-admin"><i class="fa-solid fa-film"></i> Pruebas de Películas</h2>
 
-  <h3>Películas actuales</h3>
-  <div id="peliculasGrid"></div>
+  <div class="peliculas-admin-container">
+    <form id="formAgregarPelicula" class="pelicula-form" enctype="multipart/form-data" autocomplete="off">
+      <input type="hidden" id="id_pelicula" name="id_pelicula" />
 
-  <script src="../js/script.js"></script>
+      <label>
+        <i class="fa-solid fa-clapperboard"></i> Título:
+        <input type="text" id="titulo" name="titulo" required placeholder="Ej: El Padrino" />
+      </label>
+
+      <label>
+        <i class="fa-solid fa-clock"></i> Duración (min):
+        <input type="number" id="duracion_minutos" name="duracion_minutos" required min="1" placeholder="Ej: 120" />
+      </label>
+
+      <label>
+        <i class="fa-solid fa-user-shield"></i> Clasificación:
+        <input type="text" id="clasificacion" name="clasificacion" required placeholder="Ej: PG-13" />
+      </label>
+
+      <label>
+        <i class="fa-solid fa-masks-theater"></i> Género:
+        <input type="text" id="genero" name="genero" required placeholder="Ej: Drama" />
+      </label>
+
+      <label>
+        <i class="fa-solid fa-align-left"></i> Sinopsis:
+        <textarea id="sinopsis" name="sinopsis" placeholder="Breve descripción..."></textarea>
+      </label>
+
+      <label>
+        <i class="fa-solid fa-image"></i> Imagen:
+        <input type="file" id="imagen" name="imagen" accept="image/*" />
+      </label>
+
+      <div class="form-btns">
+        <button type="submit" id="btnGuardar" class="ver-funciones-btn"><i class="fa-solid fa-plus"></i> Agregar Película</button>
+        <button type="button" id="btnCancelar" style="display:none;"><i class="fa-solid fa-xmark"></i> Cancelar edición</button>
+      </div>
+    </form>
+
+    <div class="peliculas-lista">
+      <h3><i class="fa-solid fa-list"></i> Películas actuales</h3>
+      <div id="peliculasGrid" class="peliculas-grid"></div>
+    </div>
+  </div>
+
   <script>
+    // Renderizado de tarjetas de películas
+    async function cargarPeliculas() {
+      const res = await fetch('../php/peliculas.php');
+      const peliculas = await res.json();
+      const grid = document.getElementById('peliculasGrid');
+      grid.innerHTML = '';
+      if (!peliculas.length) {
+        grid.innerHTML = '<div class="mensaje-info">No hay películas registradas.</div>';
+        return;
+      }
+      peliculas.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'pelicula-card-admin';
+        card.innerHTML = `
+          <div class="pelicula-card-img">
+            <img src="${p.imagen ? '../resources/' + p.imagen : 'https://placehold.co/180x270?text=Sin+Imagen'}" alt="${p.titulo}" />
+          </div>
+          <div class="pelicula-card-info">
+            <h4 title="${p.titulo}">${p.titulo}</h4>
+            <span class="pelicula-chip"><i class="fa-solid fa-clock"></i> ${p.duracion_minutos} min</span>
+            <span class="pelicula-chip"><i class="fa-solid fa-user-shield"></i> ${p.clasificacion}</span>
+            <span class="pelicula-chip"><i class="fa-solid fa-masks-theater"></i> ${p.genero}</span>
+            <p class="pelicula-sinopsis">${p.sinopsis ? p.sinopsis : '<em>Sin sinopsis</em>'}</p>
+            <div class="pelicula-card-actions">
+              <button onclick="editarPelicula('${p.id_pelicula}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
+              <button onclick="eliminarPelicula('${p.id_pelicula}')" title="Eliminar" class="btn-eliminar"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
     // Manejo del formulario para agregar o editar
     document.getElementById('formAgregarPelicula').onsubmit = async function(e) {
       e.preventDefault();
@@ -44,12 +109,12 @@
 
       form.reset();
       document.getElementById('id_pelicula').value = "";
-      document.getElementById('btnGuardar').textContent = "Agregar Película";
+      document.getElementById('btnGuardar').innerHTML = '<i class="fa-solid fa-plus"></i> Agregar Película';
       document.getElementById('btnCancelar').style.display = "none";
       cargarPeliculas();
     };
 
-    // Función para editar película (rellena el formulario)
+    // Función para editar película
     window.editarPelicula = function(id) {
       fetch('../php/peliculas.php')
         .then(res => res.json())
@@ -62,7 +127,7 @@
             document.getElementById('clasificacion').value = peli.clasificacion;
             document.getElementById('genero').value = peli.genero;
             document.getElementById('sinopsis').value = peli.sinopsis;
-            document.getElementById('btnGuardar').textContent = "Guardar Cambios";
+            document.getElementById('btnGuardar').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar Cambios';
             document.getElementById('btnCancelar').style.display = "inline";
           }
         });
@@ -73,14 +138,15 @@
       document.getElementById('formAgregarPelicula').reset();
       document.getElementById('id_pelicula').value = "";
       this.style.display = "none";
-      document.getElementById('btnGuardar').textContent = "Agregar Película";
+      document.getElementById('btnGuardar').innerHTML = '<i class="fa-solid fa-plus"></i> Agregar Película';
     };
 
-    // Sobrescribe la función eliminar para refrescar la lista
+    // Eliminar película
     window.eliminarPelicula = async function(id) {
+      if (!confirm('¿Seguro que deseas eliminar esta película?')) return;
       await fetch('../php/peliculas.php', {
         method: 'DELETE',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `id_pelicula=${id}`
       });
       cargarPeliculas();
