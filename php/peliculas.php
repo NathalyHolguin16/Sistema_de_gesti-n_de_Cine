@@ -7,11 +7,10 @@ $resourcesDir = realpath(__DIR__ . '/../resources/');
 
 // Listar películas
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $query = "SELECT * FROM Peliculas WHERE estado = TRUE ORDER BY id_pelicula DESC";
-    $result = $conn->query($query);
+    $result = pg_query($conn, "SELECT * FROM Peliculas WHERE estado = TRUE ORDER BY id_pelicula DESC");
     $peliculas = [];
     if ($result) {
-        while ($row = $result->fetch_assoc()) {
+        while ($row = pg_fetch_assoc($result)) {
             // Agrega la ruta completa de la imagen si existe
             if (!empty($row['imagen'])) {
                 $row['imagen_url'] = '../resources/' . $row['imagen'];
@@ -46,28 +45,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($modo === 'agregar') {
         $query = "INSERT INTO Peliculas (titulo, duracion_minutos, clasificacion, genero, sinopsis, estado, imagen)
-                  VALUES (?, ?, ?, ?, ?, ?, ?)";
-        $stmt = $conn->prepare($query);
-        $stmt->bind_param("sisssis", $titulo, $duracion, $clasificacion, $genero, $sinopsis, $estado, $imagen);
-        $success = $stmt->execute();
-        echo json_encode(['success' => $success]);
-        $stmt->close();
+                  VALUES ($1, $2, $3, $4, $5, $6, $7)";
+        $result = pg_query_params($conn, $query, [$titulo, $duracion, $clasificacion, $genero, $sinopsis, $estado, $imagen]);
+        echo json_encode(['success' => (bool)$result]);
         exit;
     } elseif ($modo === 'editar') {
         $id = $_POST['id_pelicula'] ?? null;
         if ($id) {
             if ($imagen) {
-                $query = "UPDATE Peliculas SET titulo=?, duracion_minutos=?, clasificacion=?, genero=?, sinopsis=?, estado=?, imagen=? WHERE id_pelicula=?";
-                $stmt = $conn->prepare($query);
-                $stmt->bind_param("sisssisi", $titulo, $duracion, $clasificacion, $genero, $sinopsis, $estado, $imagen, $id);
+                $query = "UPDATE Peliculas SET titulo=$1, duracion_minutos=$2, clasificacion=$3, genero=$4, sinopsis=$5, estado=$6, imagen=$7 WHERE id_pelicula=$8";
+                $params = [$titulo, $duracion, $clasificacion, $genero, $sinopsis, $estado, $imagen, $id];
             } else {
-                $query = "UPDATE Peliculas SET titulo=?, duracion_minutos=?, clasificacion=?, genero=?, sinopsis=?, estado=? WHERE id_pelicula=?";
-                $stmt = $conn->prepare($query);
-                $stmt->bind_param("sisssii", $titulo, $duracion, $clasificacion, $genero, $sinopsis, $estado, $id);
+                $query = "UPDATE Peliculas SET titulo=$1, duracion_minutos=$2, clasificacion=$3, genero=$4, sinopsis=$5, estado=$6 WHERE id_pelicula=$7";
+                $params = [$titulo, $duracion, $clasificacion, $genero, $sinopsis, $estado, $id];
             }
-            $success = $stmt->execute();
-            echo json_encode(['success' => $success]);
-            $stmt->close();
+            $result = pg_query_params($conn, $query, $params);
+            echo json_encode(['success' => (bool)$result]);
             exit;
         }
     }
@@ -75,17 +68,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-// Eliminar película (borrado físico)
+// Eliminar película (borrado lógico)
 if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
     parse_str(file_get_contents("php://input"), $data);
     $id = $data['id_pelicula'] ?? null;
     if ($id) {
-        $query = "DELETE FROM Peliculas WHERE id_pelicula=?";
-        $stmt = $conn->prepare($query);
-        $stmt->bind_param("i", $id);
-        $success = $stmt->execute();
-        echo json_encode(['success' => $success]);
-        $stmt->close();
+        // Borrado físico:
+        $query = "DELETE FROM Peliculas WHERE id_pelicula=$1";
+        $result = pg_query_params($conn, $query, [$id]);
+        echo json_encode(['success' => (bool)$result]);
     } else {
         echo json_encode(['success' => false, 'error' => 'ID no proporcionado']);
     }
