@@ -68,3 +68,15 @@ if (form) {
   };
 }
 
+function agregarFuncion(idPelicula, imagen, titulo) {
+  const params = new URLSearchParams({
+    id: idPelicula,
+    imagen: imagen,
+    titulo: titulo
+  });
+  window.location.href = `testing-funciones.html?${params.toString()}`;
+}
+
+// Asegúrate de que esté disponible globalmente
+window.agregarFuncion = agregarFuncion;
+

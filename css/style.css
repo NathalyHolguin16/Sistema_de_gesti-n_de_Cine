@@ -850,6 +850,43 @@ body::before {
   box-shadow: 0 2px 8px #0003;
 }
 
+#peliculaSeleccionada {
+  margin-bottom: 20px;
+}
+
+#peliculaSeleccionadaCard {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+#peliculaSeleccionadaCard .pelicula-card-img img {
+  width: 120px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#peliculaSeleccionadaCard .pelicula-card-info h4 {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+#peliculaSeleccionadaCard .pelicula-chip {
+  display: inline-block;
+  margin-top: 5px;
+  padding: 5px 10px;
+  background-color: #eee;
+  border-radius: 3px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
 @media (max-width: 1100px) {
   .peliculas-admin-container {
     flex-direction: column;
@@ -884,4 +921,23 @@ body::before {
 @keyframes fadeIn {
   from { opacity: 0;}
   to { opacity: 1;}
+}
+.pelicula-seleccionada {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.pelicula-seleccionada img {
+  width: 120px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.pelicula-seleccionada h4 {
+  font-size: 1.5rem;
+  color: #333;
 }
