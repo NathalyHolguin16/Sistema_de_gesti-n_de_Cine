@@ -1,0 +1,172 @@
+/* Fondo y estructura */
+body {
+  background: #181818;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  margin: 0;
+}
+
+main {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.funciones-section {
+  animation: fadeIn 0.8s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+
+/* Banner de la película */
+.pelicula-banner {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  background: #232323;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px #0002;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+.pelicula-banner-img {
+  width: 180px;
+  height: 270px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px #0006;
+  background: #333;
+}
+.pelicula-banner-info {
+  flex: 1;
+  min-width: 220px;
+}
+.pelicula-banner-info h2 {
+  font-size: 2rem;
+  margin: 0 0 0.7rem 0;
+  color: #ffd700;
+  letter-spacing: 1px;
+}
+.pelicula-detalles {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  font-size: 1rem;
+  color: #bbb;
+}
+.pelicula-detalles span {
+  margin-bottom: 0.5rem;
+}
+.sinopsis {
+  margin: 0.5rem 0 1rem 0;
+  color: #fff;
+  font-size: 1.05rem;
+}
+
+/* Subtítulo */
+.subtitulo-funciones {
+  margin-top: 1.5rem;
+  color: #e50914;
+  font-size: 1.3rem;
+  letter-spacing: 1px;
+}
+
+/* Lista de funciones */
+.funcion-lista {
+  margin: 1.5rem 0 2rem 0;
+}
+
+/* Bloque por fecha */
+.funcion-fecha-bloque {
+  margin-bottom: 18px;
+  padding: 10px 0;
+  background: #181818;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px #0003;
+}
+.funcion-fecha-titulo {
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #ffd700;
+  font-size: 1.1em;
+  padding-left: 10px;
+}
+
+/* Botones de horario */
+.funcion-hora-btn {
+  margin: 6px 8px 6px 0;
+  padding: 10px 18px;
+  background: #d32f2f;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-weight: bold;
+}
+.funcion-hora-btn:hover {
+  background: #b71c1c;
+}
+
+/* Mensajes */
+.mensaje-error {
+  color: #fff;
+  background: #e50914;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 2rem 0;
+  text-align: center;
+  font-weight: bold;
+}
+.mensaje-info {
+  color: #ffd700;
+  background: #232323;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 2rem 0;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* Botón volver */
+.volver-btn {
+  display: block;
+  margin: 2rem auto 0 auto;
+  background: #222;
+  color: #fff;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 60%;
+  max-width: 300px;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+}
+.volver-btn:hover {
+  background: #444;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .pelicula-banner {
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+  }
+  .pelicula-banner-img {
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+  }
+  .pelicula-banner-info {
+    min-width: 0;
+  }
+}

@@ -941,3 +941,39 @@ body::before {
   font-size: 1.5rem;
   color: #333;
 }
+
+.funcion-fecha-bloque {
+  margin-bottom: 18px;
+  padding: 10px 0;
+  background: #181818;
+  border-radius: 8px;
+}
+
+.funcion-fecha-titulo {
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #ffd700;
+  font-size: 1.1em;
+  padding-left: 10px;
+}
+
+.funcion-hora-btn {
+  margin: 6px 8px 6px 0;
+  padding: 10px 18px;
+  background: #d32f2f;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.funcion-hora-btn:hover {
+  background: #b71c1c;
+}
+
+#funcionLista {
+  background: #222;
+  min-height: 100px;
+  padding: 10px;
+}

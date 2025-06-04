@@ -77,6 +77,10 @@ function agregarFuncion(idPelicula, imagen, titulo) {
   window.location.href = `testing-funciones.html?${params.toString()}`;
 }
 
-// Asegúrate de que esté disponible globalmente
+function verFunciones(id_pelicula) {
+  window.location.href = `funciones.html?id_pelicula=${id_pelicula}`;
+}
+
 window.agregarFuncion = agregarFuncion;
+window.verFunciones = verFunciones;
 

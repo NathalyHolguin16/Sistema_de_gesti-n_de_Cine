@@ -16,29 +16,67 @@ document.addEventListener('DOMContentLoaded', () => {
         <span class="pelicula-chip"><i class="fa-solid fa-id-badge"></i> ID: ${id}</span>
       </div>
     `;
-
-    // Prellena el campo de película en el formulario
-    document.getElementById('pelicula').value = titulo;
+    cargarFunciones(id);
   } else {
     alert('No se seleccionó ninguna película.');
-    window.location.href = 'test_peliculas.html'; // Redirige si no hay datos
+    window.location.href = 'test_peliculas.html';
   }
+
+  // Flatpickr solo para hora
+  flatpickr("#hora", {
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    time_24hr: true,
+    minuteIncrement: 5,
+    allowInput: false // Solo selección visual, no escritura
+  });
+
+  document.getElementById('formAgregarFuncion').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const fecha = document.getElementById('fecha').value;
+    const hora = document.getElementById('hora').value;
+    const precio = document.getElementById('precio').value;
+
+    // Envía la función al backend
+    const res = await fetch('../php/funciones.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id_pelicula: id,
+        fecha,
+        hora,
+        precio
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('resultadoTesting').innerHTML = `<span style="color:limegreen;">✔ Función agregada correctamente</span>`;
+      this.reset();
+      cargarFunciones(id);
+    } else {
+      document.getElementById('resultadoTesting').innerHTML = `<span style="color:red;">Error al agregar función</span>`;
+    }
+  });
 });
 
-document.getElementById('formAgregarFuncion').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const pelicula = document.getElementById('pelicula').value;
-  const fechaHora = document.getElementById('fechaHora').value;
-  const sala = document.getElementById('sala').value;
-  const precio = document.getElementById('precio').value;
-  document.getElementById('resultadoTesting').innerHTML = `
-    <p><strong>Función agregada para:</strong></p>
-    <ul>
-      <li><i class="fa-solid fa-film"></i> <b>Película:</b> ${pelicula}</li>
-      <li><i class="fa-solid fa-calendar-days"></i> <b>Fecha y Hora:</b> ${fechaHora}</li>
-      <li><i class="fa-solid fa-door-open"></i> <b>Sala:</b> ${sala}</li>
-      <li><i class="fa-solid fa-dollar-sign"></i> <b>Precio:</b> $${parseFloat(precio).toFixed(2)}</li>
-    </ul>
-  `;
-  this.reset();
-});
+// Función para cargar y mostrar funciones de la película
+async function cargarFunciones(id_pelicula) {
+  const res = await fetch(`../php/funciones.php?id_pelicula=${id_pelicula}`);
+  const funciones = await res.json();
+  let html = '<h4>Funciones programadas:</h4>';
+  if (funciones.length === 0) {
+    html += '<p>No hay funciones asignadas.</p>';
+  } else {
+    html += `<ul style="list-style:none;padding:0;">`;
+    funciones.forEach(f => {
+      html += `<li style="margin-bottom:8px;">
+        <i class="fa-solid fa-calendar-days"></i> <b>${f.fecha}</b> 
+        <i class="fa-solid fa-clock"></i> <b>${f.hora_inicio}</b> 
+        <i class="fa-solid fa-dollar-sign"></i> <b>$${f.precio}</b>
+      </li>`;
+    });
+    html += `</ul>`;
+  }
+  document.getElementById('resultadoTesting').innerHTML = html;
+}

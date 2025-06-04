@@ -5,6 +5,19 @@ header('Content-Type: application/json');
 require_once("conexion.php");
 $resourcesDir = realpath(__DIR__ . '/../resources/');
 
+// Obtener película por ID
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id_pelicula'])) {
+    $id_pelicula = $_GET['id_pelicula'];
+    $query = "SELECT * FROM Peliculas WHERE id_pelicula = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $id_pelicula);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $pelicula = $result->fetch_assoc();
+    echo json_encode($pelicula);
+    exit;
+}
+
 // Listar películas
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $query = "SELECT * FROM Peliculas WHERE estado = TRUE ORDER BY id_pelicula DESC";
