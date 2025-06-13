@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     funcionesPorFecha[f.fecha].push(f);
   });
 
+
   const funcionListaDiv = document.getElementById('funcionLista');
   funcionListaDiv.innerHTML = "";
 
@@ -71,5 +72,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       funcionListaDiv.appendChild(fechaDiv);
     });
+
   }
 });

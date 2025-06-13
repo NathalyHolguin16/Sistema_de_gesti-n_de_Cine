@@ -38,6 +38,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const hora = document.getElementById('hora').value;
     const precio = document.getElementById('precio').value;
 
+    // Ensure id_empleado is sent in function actions
+    const empleado = JSON.parse(localStorage.getItem('empleado'));
+    if (!empleado || !empleado.id) {
+      alert('Debes iniciar sesión como empleado para realizar esta acción.');
+      return;
+    }
+
     // Envía la función al backend
     const res = await fetch('../php/funciones.php', {
       method: 'POST',
@@ -46,16 +53,18 @@ document.addEventListener('DOMContentLoaded', () => {
         id_pelicula: id,
         fecha,
         hora,
-        precio
+        precio,
+        id_empleado: empleado.id
       })
     });
-    const data = await res.json();
-    if (data.success) {
-      document.getElementById('resultadoTesting').innerHTML = `<span style="color:limegreen;">✔ Función agregada correctamente</span>`;
-      this.reset();
+
+    const result = await res.json();
+    if (result.success) {
+      alert('Función agregada correctamente.');
+      document.getElementById('formAgregarFuncion').reset();
       cargarFunciones(id);
     } else {
-      document.getElementById('resultadoTesting').innerHTML = `<span style="color:red;">Error al agregar función</span>`;
+      alert(result.error || 'Error al agregar función.');
     }
   });
 });

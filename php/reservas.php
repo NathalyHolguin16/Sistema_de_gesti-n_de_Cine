@@ -33,6 +33,15 @@ $query = "INSERT INTO Entradas (id_funcion, id_cliente, cantidad, asientos, tota
 $stmt = $conn->prepare($query);
 $stmt->bind_param("iiisd", $id_funcion, $id_cliente, $cantidad, $asientos_str, $total_pagado);
 if ($stmt->execute()) {
+    // Registrar en la bitácora
+    if ($id_cliente) {
+        $accion = 'Reserva realizada';
+        $detalles = 'El cliente con ID ' . $id_cliente . ' reservó los asientos: ' . $asientos_str . ' para la función ' . $id_funcion . '.';
+        $queryBitacora = "INSERT INTO BitacoraClientes (id_cliente, accion, detalles) VALUES (?, ?, ?)";
+        $stmtBitacora = $conn->prepare($queryBitacora);
+        $stmtBitacora->bind_param("iss", $id_cliente, $accion, $detalles);
+        $stmtBitacora->execute();
+    }
     echo json_encode(['success' => true]);
 } else {
     echo json_encode(['success' => false, 'error' => $conn->error]);

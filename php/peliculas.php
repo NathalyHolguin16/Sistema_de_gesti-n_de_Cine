@@ -20,7 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id_pelicula'])) {
 
 // Listar películas
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $query = "SELECT * FROM Peliculas WHERE estado = TRUE ORDER BY id_pelicula DESC";
+    // Modify the query to include movies with estado = NULL
+    $query = "SELECT * FROM Peliculas WHERE estado IS NULL OR estado = TRUE ORDER BY id_pelicula DESC";
     $result = $conn->query($query);
 
     if (!$result) {
@@ -61,12 +62,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    // Add bitácora logging for movie actions
     if ($modo === 'agregar') {
         $query = "INSERT INTO Peliculas (titulo, duracion_minutos, clasificacion, genero, sinopsis, estado, imagen)
                   VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($query);
         $stmt->bind_param("sisssis", $titulo, $duracion, $clasificacion, $genero, $sinopsis, $estado, $imagen);
         $success = $stmt->execute();
+
+        if ($success && isset($_POST['id_empleado'])) {
+            $id_empleado = $_POST['id_empleado'];
+            $accion = 'Agregar Película';
+            $detalles = "Título: $titulo, Duración: $duracion, Clasificación: $clasificacion";
+            $bitacora_query = "INSERT INTO BitacoraEmpleados (id_empleado, accion, detalles) VALUES (?, ?, ?)";
+            $bitacora_stmt = $conn->prepare($bitacora_query);
+            $bitacora_stmt->bind_param("iss", $id_empleado, $accion, $detalles);
+            $bitacora_stmt->execute();
+        }
+
         echo json_encode(['success' => $success]);
         $stmt->close();
         exit;
@@ -83,6 +96,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->bind_param("sisssii", $titulo, $duracion, $clasificacion, $genero, $sinopsis, $estado, $id);
             }
             $success = $stmt->execute();
+
+            if ($success && isset($_POST['id_empleado'])) {
+                $id_empleado = $_POST['id_empleado'];
+                $accion = 'Editar Película';
+                $detalles = "ID: $id, Título: $titulo, Duración: $duracion";
+                $bitacora_query = "INSERT INTO BitacoraEmpleados (id_empleado, accion, detalles) VALUES (?, ?, ?)";
+                $bitacora_stmt = $conn->prepare($bitacora_query);
+                $bitacora_stmt->bind_param("iss", $id_empleado, $accion, $detalles);
+                $bitacora_stmt->execute();
+            }
+
             echo json_encode(['success' => $success]);
             $stmt->close();
             exit;

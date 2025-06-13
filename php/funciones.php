@@ -38,14 +38,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fecha = $data['fecha'] ?? null;
     $hora = $data['hora'] ?? null;
     $precio = $data['precio'] ?? null;
+    $id_empleado = $data['id_empleado'] ?? null; // ID del empleado
 
     if ($id_pelicula && $fecha && $hora && $precio !== null) {
         $query = "INSERT INTO Funciones (id_pelicula, fecha, hora_inicio, precio) VALUES (?, ?, ?, ?)";
         $stmt = $conn->prepare($query);
         $stmt->bind_param("issd", $id_pelicula, $fecha, $hora, $precio);
         $success = $stmt->execute();
+
+        if ($success && $id_empleado) {
+            $bitacora_query = "INSERT INTO BitacoraEmpleados (id_empleado, accion, detalles) VALUES (?, 'Agregar Funcion', ?)";
+            $bitacora_stmt = $conn->prepare($bitacora_query);
+            $detalles = "ID Pelicula: $id_pelicula, Fecha: $fecha, Hora: $hora";
+            $bitacora_stmt->bind_param("is", $id_empleado, $detalles);
+            $bitacora_stmt->execute();
+        }
+
         echo json_encode(['success' => $success]);
-        $stmt->close();
     } else {
         echo json_encode(['success' => false, 'error' => 'Datos incompletos']);
     }

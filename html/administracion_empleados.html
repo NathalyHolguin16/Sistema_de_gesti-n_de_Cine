@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Administración de Empleados</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header>
+    <h1>
+        <span class="rojo">Cine</span> <span class="dorado">fantástico</span>
+    </h1>
+    <nav id="adminNav">
+         <a href="index.html">Inicio</a>
+        <a href="test_peliculas.html">Administrar Películas</a>
+        <a href="administracion_empleados.html">Administrar Empleados</a>
+    </nav>
+    <button id="logoutAdminBtn">Cerrar sesión</button>
+</header>
+
+<main>
+    <section id="empleadosAdmin">
+        <h2>Gestión de Empleados</h2>
+        <p>Aquí puedes ver, agregar, modificar y eliminar empleados.</p>
+
+        <!-- Formulario para agregar/modificar empleados -->
+        <form id="formEmpleado" autocomplete="off">
+            <input type="hidden" id="id_empleado" name="id_empleado" />
+            <label for="nombreEmpleado">Nombre:</label>
+            <input type="text" id="nombreEmpleado" name="nombreEmpleado" required />
+
+            <label for="cargoEmpleado">Cargo:</label>
+            <input type="text" id="cargoEmpleado" name="cargoEmpleado" required />
+
+            <label for="usuarioEmpleado">Usuario:</label>
+            <input type="text" id="usuarioEmpleado" name="usuarioEmpleado" required />
+
+            <label for="contrasenaEmpleado">Contraseña:</label>
+            <input type="password" id="contrasenaEmpleado" name="contrasenaEmpleado" required />
+
+            <label for="rolEmpleado">Rol:</label>
+            <select id="rolEmpleado" name="rolEmpleado" required>
+                <option value="Empleado">Empleado</option>
+                <option value="Administrador">Administrador</option>
+            </select>
+
+            <button type="submit" id="btnGuardarEmpleado">Guardar</button>
+            <button type="button" id="btnCancelarEmpleado" style="display:none;">Cancelar</button>
+        </form>
+
+        <!-- Lista de empleados -->
+        <div id="empleadosLista">
+            <h3>Lista de Empleados</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Cargo</th>
+                        <th>Usuario</th>
+                        <th>Rol</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="empleadosTabla"></tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <p>&copy; 2025 Cine Fantástico</p>
+</footer>
+<script src="../js/administracion_empleados.js"></script>
+</body>
+</html>

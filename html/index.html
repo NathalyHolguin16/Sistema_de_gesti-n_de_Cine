@@ -13,9 +13,18 @@
     <span class="rojo">Cine</span> <span class="dorado">fantástico</span>
   </h1>
   <nav>
-    <a onclick="showSection('cartelera')">Inicio</a>
-    <a onclick="showSection('cartelera')">Cartelera</a>
-    <a onclick="showSection('reservas')">Reservas</a>
+    <a href="index.html">Inicio</a>
+    <span id="userOptions">
+      <a href="registro_cliente.html">Registrarse</a>
+      <a href="login_cliente.html">Iniciar sesión</a>
+    </span>
+    <span id="welcomeMessage" style="display:none;">
+      Bienvenido, <span id="clienteNombre"></span>
+      <a id="logoutBtn" style="margin-left: 10px; cursor: pointer;">Cerrar sesión</a>
+    </span>
+    <span id="adminOptions" style="display:none;">
+      <a href="administracion.html">Administración</a>
+    </span>
   </nav>
 </header>
 
@@ -86,6 +95,34 @@
       <button type="submit" class="reservar-btn">Reservar</button>
     </form>
     <button id="cancelarBtn" onclick="showSection('cartelera')">Cancelar</button>
+  </section>
+
+  <!-- Sección de registro -->
+  <section id="registro" style="display:none;">
+    <h2>Registro de Cliente</h2>
+    <form id="formRegistroCliente">
+      <label for="nombre">Nombre:</label>
+      <input type="text" id="nombre" name="nombre" required>
+      
+      <label for="correo">Correo:</label>
+      <input type="email" id="correo" name="correo" required>
+      
+      <label for="telefono">Teléfono:</label>
+      <input type="text" id="telefono" name="telefono">
+      
+      <button type="submit">Registrarse</button>
+    </form>
+  </section>
+
+  <!-- Sección de login -->
+  <section id="login" style="display:none;">
+    <h2>Login de Cliente</h2>
+    <form id="formLoginCliente">
+      <label for="correoLogin">Correo:</label>
+      <input type="email" id="correoLogin" name="correoLogin" required>
+      
+      <button type="submit">Iniciar sesión</button>
+    </form>
   </section>
 </main>
 

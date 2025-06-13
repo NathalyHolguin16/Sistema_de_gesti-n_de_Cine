@@ -81,6 +81,105 @@ function verFunciones(id_pelicula) {
   window.location.href = `funciones.html?id_pelicula=${id_pelicula}`;
 }
 
+// Mostrar secciones dinámicamente
+function showSection(sectionId) {
+  const section = document.getElementById(sectionId);
+  if (!section) {
+    console.error(`La sección con id "${sectionId}" no existe.`);
+    return;
+  }
+  document.querySelectorAll('main > section').forEach(section => {
+    section.style.display = 'none';
+  });
+  section.style.display = 'block';
+}
+
+// Verificar si el cliente o empleado está logueado
+function verificarLogin() {
+  const cliente = JSON.parse(localStorage.getItem('cliente'));
+  const empleado = JSON.parse(localStorage.getItem('empleado'));
+
+  if (cliente) {
+    // Mostrar mensaje de bienvenida para clientes
+    document.getElementById('userOptions').style.display = 'none';
+    document.getElementById('welcomeMessage').style.display = 'inline';
+    document.getElementById('clienteNombre').textContent = cliente.nombre;
+  } else if (empleado) {
+    // Mostrar opciones de administración para empleados
+    document.getElementById('userOptions').style.display = 'none';
+    document.getElementById('welcomeMessage').style.display = 'inline';
+    document.getElementById('clienteNombre').textContent = empleado.nombre;
+    if (empleado.rol === 'Administrador' || empleado.rol === 'Empleado') {
+      document.getElementById('adminOptions').style.display = 'inline';
+    }
+  } else {
+    // Mostrar opciones de registro y login
+    document.getElementById('userOptions').style.display = 'inline';
+    document.getElementById('welcomeMessage').style.display = 'none';
+    document.getElementById('adminOptions').style.display = 'none';
+  }
+}
+
+// Cerrar sesión
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  localStorage.removeItem('cliente');
+  localStorage.removeItem('empleado');
+  verificarLogin();
+  alert('Has cerrado sesión.');
+  window.location.href = 'index.html'; // Redirige al inicio
+});
+
+// Registro de cliente
+document.getElementById('formRegistroCliente').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const nombre = document.getElementById('nombre').value;
+  const correo = document.getElementById('correo').value;
+  const telefono = document.getElementById('telefono').value;
+
+  const res = await fetch('../php/registro_cliente.php', {
+    method: 'POST',
+    body: JSON.stringify({ nombre, correo, telefono }),
+    headers: { 'Content-Type': 'application/json' }
+  });
+
+  const result = await res.json();
+  if (result.success) {
+    alert('¡Registro exitoso!');
+    localStorage.setItem('cliente', JSON.stringify({ nombre, correo }));
+    verificarLogin();
+    showSection('cartelera');
+  } else {
+    alert(result.error || 'Error al registrarse.');
+  }
+});
+
+// Login de cliente
+document.getElementById('formLoginCliente').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const correo = document.getElementById('correoLogin').value;
+
+  const res = await fetch('../php/login_cliente.php', {
+    method: 'POST',
+    body: JSON.stringify({ correo }),
+    headers: { 'Content-Type': 'application/json' }
+  });
+
+  const result = await res.json();
+  if (result.success) {
+    alert('¡Login exitoso!');
+    localStorage.setItem('cliente', JSON.stringify({ nombre: result.nombre, correo }));
+    verificarLogin();
+    showSection('cartelera');
+  } else {
+    alert(result.error || 'Error al iniciar sesión.');
+  }
+});
+
+// Ejecutar la verificación al cargar la página
+document.addEventListener('DOMContentLoaded', verificarLogin);
+
 window.agregarFuncion = agregarFuncion;
 window.verFunciones = verFunciones;
 

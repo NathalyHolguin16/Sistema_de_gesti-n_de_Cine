@@ -1,3 +1,35 @@
+document.addEventListener('DOMContentLoaded', () => {
+  const cliente = JSON.parse(localStorage.getItem('cliente'));
+
+  if (!cliente) {
+      // Mostrar advertencia y redirigir al login
+      document.getElementById('reservasWarning').style.display = 'block';
+      alert('Debes iniciar sesión para realizar una reserva.');
+      window.location.href = 'login_cliente.html';
+      return;
+  }
+
+  const idFuncion = localStorage.getItem('id_funcion'); // Obtener ID de la función seleccionada
+
+  async function cargarAsientosOcupados() {
+    const res = await fetch(`../php/entradas_ocupadas.php?id_funcion=${idFuncion}`);
+    const ocupados = await res.json();
+
+    ocupados.forEach(asiento => {
+      const asientoElement = document.getElementById(asiento);
+      if (asientoElement) {
+        asientoElement.disabled = true;
+        asientoElement.classList.add('ocupado'); // Agregar clase para estilo visual
+      }
+    });
+  }
+
+  cargarAsientosOcupados();
+
+  // Aquí va la lógica de reservas (mapa de asientos, selección, etc.)
+  console.log(`Cliente logueado: ${cliente.nombre}`);
+});
+
 const params = new URLSearchParams(window.location.search);
 const id_funcion = params.get('id_funcion');
 const seats = document.querySelectorAll('.seat:not(.occupied)');
@@ -42,8 +74,10 @@ confirmarBtn.addEventListener('click', async () => {
     return;
   }
   const total = seatNumbers.length * precio;
-  // Si tienes login, obtén el id_cliente, si no, envía null
-  const id_cliente = null; // O reemplaza por el id real si tienes login
+
+  // Obtener la ID del cliente logueado desde localStorage
+  const cliente = JSON.parse(localStorage.getItem('cliente'));
+  const id_cliente = cliente ? cliente.id : null;
 
   const res = await fetch('../php/reservas.php', {
     method: 'POST',

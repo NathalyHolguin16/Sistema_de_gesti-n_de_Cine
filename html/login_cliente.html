@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <h2 id="loginTitle">Login de Cliente</h2>
+    <form id="formLogin">
+        <!-- Campos para cliente -->
+        <div id="clienteFields">
+            <label for="correoLogin">Correo:</label>
+            <input type="email" id="correoLogin" name="correoLogin" required>
+        </div>
+
+        <!-- Campos para empleado (ocultos por defecto) -->
+        <div id="empleadoFields" style="display: none;">
+            <label for="usuarioLogin">Usuario:</label>
+            <input type="text" id="usuarioLogin" name="usuarioLogin">
+
+            <label for="contrasenaLogin">Contraseña:</label>
+            <input type="password" id="contrasenaLogin" name="contrasenaLogin">
+        </div>
+
+        <button type="submit">Iniciar sesión</button>
+    </form>
+
+    <!-- Botón para alternar entre cliente y empleado -->
+    <button id="toggleLoginBtn">Iniciar sesión como empleado</button>
+
+    <script src="../js/login.js"></script>
+</body>
+</html>

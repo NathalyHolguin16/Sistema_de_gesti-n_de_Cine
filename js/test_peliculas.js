@@ -88,6 +88,14 @@ document.getElementById('formAgregarPelicula').onsubmit = async function(e) {
   const form = this;
   const formData = new FormData(form);
 
+  // Ensure id_empleado is sent in movie actions
+  const empleado = JSON.parse(localStorage.getItem('empleado'));
+  if (!empleado || !empleado.id) {
+    alert('Debes iniciar sesión como empleado para realizar esta acción.');
+    return;
+  }
+  formData.append('id_empleado', empleado.id);
+
   if (document.getElementById('id_pelicula').value) {
     formData.append('id_pelicula', document.getElementById('id_pelicula').value);
     formData.append('modo', 'editar');
