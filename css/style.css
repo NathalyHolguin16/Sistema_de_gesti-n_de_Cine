@@ -409,6 +409,24 @@ footer {
 }
 
 /* --- MEJORAS VISUALES PARA TESTING-FUNCIONES --- */
+#logoutAdminBtn {
+  display: block;
+  margin: 0 auto 0.5rem auto;
+  background: #e50914;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.3rem;
+  border-radius: 7px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#logoutAdminBtn:hover {
+  background: #b0060f;
+}
+
 #testing-funciones {
   background: #232323;
   border-radius: 16px;
@@ -559,181 +577,12 @@ body::before {
   z-index: -1; 
 }
 
-/* --- EMBELLECIMIENTO EXTRA PARA ADMIN DE PELÍCULAS --- */
-.titulo-admin {
-  text-align: center;
-  color: #bba215;
-  margin-top: 2.5rem;
-  letter-spacing: 1px;
-  font-size: 2.3rem;
-  font-weight: bold;
-  text-shadow: 0 2px 12px #000a;
-  margin-bottom: 2rem;
-  animation: fadeIn 1s;
-}
-.titulo-admin i {
-  color: #e50914;
-  margin-right: 0.5em;
-}
-
-.peliculas-admin-container {
-  display: flex;
-  gap: 2.5rem;
-  align-items: flex-start;
-  justify-content: center;
-  margin: 2.5rem auto 3rem auto;
-  max-width: 1200px;
-  background: rgba(34,34,34,0.97);
-  border-radius: 18px;
-  box-shadow: 0 6px 32px #0007;
-  padding: 2.5rem 2rem;
-  flex-wrap: wrap;
-  animation: fadeIn 1.2s;
-}
-
-.pelicula-form {
-  background: #181818;
-  border-radius: 14px;
-  box-shadow: 0 2px 12px #0004;
-  padding: 2.2rem 1.7rem 1.7rem 1.7rem;
-  min-width: 320px;
-  max-width: 370px;
-  flex: 1;
-  color: #ffd700;
-  font-size: 1.09rem;
-  animation: fadeInUp 0.7s;
-  border: 1.5px solid #232323;
-}
-
-.pelicula-form label {
-  color: #b29c1c;
-  font-weight: bold;
-  margin-top: 1.1rem;
-  display: block;
-  letter-spacing: 0.5px;
-  font-size: 1.01em;
-}
-.pelicula-form label i {
-  color: #e50914;
-  margin-right: 0.5em;
-}
-
-.pelicula-form input[type="text"],
-.pelicula-form input[type="number"],
-.pelicula-form textarea {
-  width: 100%;
-  padding: 0.7rem 1rem;
-  border-radius: 7px;
-  border: none;
-  margin-bottom: 1.1rem;
-  background: #232323;
-  color: #fff;
-  font-size: 1.05rem;
-  box-shadow: 0 1px 4px #0002 inset;
-  transition: box-shadow 0.2s, border 0.2s;
-}
-.pelicula-form input:focus,
-.pelicula-form textarea:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px #ffd700;
-  border: 1px solid #e50914;
-}
-
-.pelicula-form input[type="file"] {
-  background: #232323;
-  color: #ffd700;
-  border-radius: 6px;
-  padding: 0.4rem 0.2rem;
-  margin-bottom: 1.1rem;
-}
-
-.pelicula-form textarea {
-  min-height: 60px;
-  resize: vertical;
-}
-
-.form-btns {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1.2rem;
-}
-
-#btnCancelar {
-  background: #dc3545;
-  color: #fff;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 4px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-  font-size: 1.05em;
-}
-#btnCancelar:hover {
-  background: #b02a37;
-}
-
-.ver-funciones-btn {
-  background: linear-gradient(90deg, #e50914 60%, #ffd700 100%);
-  color: #181818;
-  border: none;
-  padding: 0.7rem 1.3rem;
-  border-radius: 4px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-  font-size: 1.08rem;
-  box-shadow: 0 2px 8px #0003;
-}
 .ver-funciones-btn:hover {
   background: linear-gradient(90deg, #ffd700 0%, #e50914 100%);
   color: #fff;
 }
 
-.peliculas-lista {
-  flex: 2;
-  min-width: 340px;
-  animation: fadeInUp 0.9s;
-}
 
-.peliculas-lista h3 {
-  color: #ffd700;
-  margin-bottom: 1.2rem;
-  text-align: left;
-  font-size: 1.3rem;
-  letter-spacing: 1px;
-  font-weight: bold;
-}
-.peliculas-lista h3 i {
-  color: #e50914;
-  margin-right: 0.5em;
-}
-
-.peliculas-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill,minmax(240px,1fr));
-  gap: 1.3rem;
-}
-
-.pelicula-card-admin {
-  background: #232323;
-  border-radius: 14px;
-  box-shadow: 0 2px 12px #0005;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.18s, box-shadow 0.18s;
-  animation: fadeInUp 0.7s;
-  min-height: 430px;
-  position: relative;
-  border: 1.5px solid #292929;
-}
 .pelicula-card-admin:hover {
   transform: translateY(-8px) scale(1.035);
   box-shadow: 0 10px 36px #000a;
@@ -976,4 +825,130 @@ body::before {
   background: #222;
   min-height: 100px;
   padding: 10px;
+}
+
+footer {
+  text-align: center;
+  color: #ffd700;
+  background: #232323;
+  padding: 1rem 0 0.5rem 0;
+  margin-top: 2rem;
+  border-radius: 0 0 14px 14px;
+  font-size: 1rem;
+  letter-spacing: 1px;
+}
+
+#adminNav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  margin: 1rem 0;
+  padding: 0 2rem;
+}
+
+#adminNav .nav-links {
+  display: flex;
+  gap: 2rem;
+}
+
+#adminNav a {
+  color: #ffd700;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1.1rem;
+  padding: 0.4rem 1.1rem;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+
+#adminNav a:hover {
+  background: #ffd700;
+  color: #232323;
+}
+
+#logoutAdminBtn {
+  background: #e50914;
+  color: #fff;
+  border: none;
+  padding: 0.4rem 1.1rem;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: bold;    
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+#logoutAdminBtn:hover {
+  background: #ffd700;
+  color: #232323;
+}
+
+/* Estilo para el mensaje de bienvenida en administración */
+#adminContent {
+  background: rgba(34, 34, 34, 0.92);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px #0005;
+  padding: 2.5rem 2rem;
+  max-width: 500px;
+  margin: 3rem auto 2rem auto;
+  text-align: center;
+  animation: fadeIn 0.8s;
+}
+
+#adminContent h2 {
+  color: #94821a;
+  font-size: 2.1rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 12px #000a;
+}
+
+#adminContent p {
+  color: #fff;
+  font-size: 1.15rem;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.titulo-cartelera {
+  color: #fff;
+  font-size: 2.4rem;
+  font-weight: bold;
+  text-align: center;
+  margin: 2.5rem 0 1.5rem 0;
+  letter-spacing: 1px;
+  padding: 1.2rem 0 1.5rem 0;
+  background: linear-gradient(90deg, #232323 0%, #ffd700 50%, #232323 100%);
+  border-radius: 18px;
+  box-shadow: 0 6px 32px #0007;
+  border-bottom: 5px solid #b7a22c;
+  text-shadow: 0 2px 12px #000a, 0 1px 0 #ffd70055;
+  animation: fadeIn 0.8s;
+  position: relative;
+  overflow: hidden;
+}
+.titulo-cartelera::after {
+  content: "🍿";
+  position: absolute;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2.2rem;
+  filter: drop-shadow(0 2px 6px #000a);
+}
+.titulo-cartelera::before {
+  content: "🎬";
+  position: absolute;
+  left: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2.2rem;
+  filter: drop-shadow(0 2px 6px #000a);
+}
+nav a:focus, 
+nav a:active {
+  outline: none;
+  box-shadow: none;
 }

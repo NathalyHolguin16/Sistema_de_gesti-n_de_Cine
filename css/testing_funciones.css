@@ -1,0 +1,217 @@
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: url('../resources/cine.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: #fff;
+  margin: 0;
+  min-height: 100vh;
+  position: relative;
+}
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(18,18,18,0.85); 
+  z-index: -1; 
+}
+
+header {
+  background: #232323;
+  padding: 1.5rem 0 1rem 0;
+  box-shadow: 0 2px 12px #0006;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+header h1 .rojo { color: #e50914; font-weight: bold; }
+header h1 .dorado { color: #ffd700; font-weight: bold; }
+
+#adminNav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  margin: 1rem 0;
+  padding: 0 2rem;
+}
+#adminNav .nav-links {
+  display: flex;
+  gap: 2rem;
+}
+#adminNav a {
+  color: #ffd700;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1.1rem;
+  padding: 0.4rem 1.1rem;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+#adminNav a:hover {
+  background: #ffd700;
+  color: #232323;
+}
+#logoutAdminBtn {
+  background: #e50914;
+  color: #fff;
+  border: none;
+  padding: 0.4rem 1.1rem;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+#logoutAdminBtn:hover {
+  background: #ffd700;
+  color: #232323;
+}
+
+/* Íconos Font Awesome */
+#testing-funciones i,
+#formAgregarFuncion label i,
+#formAgregarFuncion button i,
+#peliculaSeleccionadaCard i,
+#peliculaSeleccionada i {
+  color: #e50914;
+  font-size: 1.2em;
+  margin-right: 0.4em;
+  vertical-align: middle;
+  display: inline-block;
+}
+
+#testing-funciones {
+  background: #232323;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px #0005;
+  padding: 2.5rem 2rem;
+  max-width: 430px;
+  margin: 2.5rem auto;
+  animation: fadeIn 0.8s;
+}
+#testing-funciones h2 {
+  color: #d70f0f;
+  text-align: center;
+  margin-bottom: 2rem;
+  letter-spacing: 1px;
+  font-size: 2rem;
+  font-weight: bold;
+}
+#formAgregarFuncion label {
+  color: #978419;
+  font-weight: bold;
+  margin-top: 1.2rem;
+  display: block;
+  letter-spacing: 0.5px;
+}
+#formAgregarFuncion input[type="text"],
+#formAgregarFuncion input[type="datetime-local"],
+#formAgregarFuncion input[type="number"],
+#formAgregarFuncion input[type="date"] {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border-radius: 6px;
+  border: none;
+  margin-bottom: 1.2rem;
+  background: #181818;
+  color: #fff;
+  font-size: 1.08rem;
+  box-shadow: 0 1px 4px #0002 inset;
+  transition: box-shadow 0.2s;
+}
+#formAgregarFuncion input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #8d7b15;
+}
+#formAgregarFuncion button[type="submit"] {
+  background: linear-gradient(90deg, #e50914 60%, #a79119 100%);
+  color: #0d0d0d;
+  border: none;
+  padding: 0.9rem 1.5rem;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  font-size: 1.15rem;
+  margin-top: 1.2rem;
+  transition: background 0.2s, color 0.2s;
+  box-shadow: 0 2px 8px #0003;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7em;
+}
+#formAgregarFuncion button[type="submit"]:hover {
+  background: linear-gradient(90deg, #ffd700 0%, #e50914 100%);
+  color: #232323;
+}
+#resultadoTesting {
+  margin-top: 2rem;
+  background: #181818;
+  border-radius: 10px;
+  padding: 1.5rem 1.2rem;
+  color: #ffd700;
+  font-size: 1.13rem;
+  box-shadow: 0 2px 8px #0003;
+  text-align: left;
+  animation: fadeIn 0.6s;
+  border-left: 5px solid #d40f23;
+  position: relative;
+}
+#resultadoTesting:before {
+  content: "\f058";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  color: #28a745;
+  font-size: 2rem;
+  position: absolute;
+  left: -2.2rem;
+  top: 0.5rem;
+  animation: pop 0.5s;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+@keyframes pop {
+  0% { transform: scale(0.5);}
+  80% { transform: scale(1.2);}
+  100% { transform: scale(1);}
+}
+#resultadoTesting ul {
+  margin: 0.7em 0 0 1.2em;
+  padding: 0;
+}
+#resultadoTesting li {
+  margin-bottom: 0.4em;
+  color: #fff;
+}
+@media (max-width: 600px) {
+  #testing-funciones {
+    padding: 1.2rem 0.5rem; 
+    max-width: 98vw;
+  }
+}
+
+/* Quitar subrayado y poner blanco a los enlaces del menú principal */
+header nav a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1.1rem;
+  padding: 0.4rem 1.1rem;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+
+
+footer {
+  text-align: center;
+  color: #ffd700;
+  background: #232323;
+  padding: 1rem 0 0.5rem 0;
+  margin-top: 2rem;
+  border-radius: 0 0 14px 14px;
+  font-size: 1rem;
+  letter-spacing: 1px;
+}

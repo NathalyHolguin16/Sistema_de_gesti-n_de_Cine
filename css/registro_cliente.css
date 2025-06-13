@@ -1,0 +1,76 @@
+body {
+  background: #181818;
+}
+
+#registroClienteTitle {
+  color: #ffd700;
+  text-align: center;
+  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 2.1rem;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 12px #000a;
+  font-weight: bold;
+}
+
+
+#formRegistroCliente {
+  background: #232323;
+  padding: 2.2rem 2.5rem;
+  border-radius: 14px;
+  box-shadow: 0 8px 32px #0008;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  min-width: 320px;
+  max-width: 400px;
+  margin: 0 auto 1.2rem auto;
+  border: 2px solid #ffd70055;
+  animation: fadeInUp 0.7s;
+}
+
+#formRegistroCliente label {
+  font-weight: 600;
+  color: #ffd700;
+  margin-bottom: 0.3rem;
+  letter-spacing: 0.5px;
+}
+
+#formRegistroCliente input[type="email"],
+#formRegistroCliente input[type="text"],
+#formRegistroCliente input[type="password"],
+#formRegistroCliente input[type="number"] {
+  padding: 0.7rem;
+  border: 1.5px solid #bba215;
+  border-radius: 7px;
+  font-size: 1rem;
+  outline: none;
+  background: #181818;
+  color: #fff;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+#formRegistroCliente input:focus {
+  border-color: #ffd700;
+  background: #232323;
+}
+
+#formRegistroCliente button[type="submit"] {
+  background: linear-gradient(90deg, #ffd700 0%, #e50914 100%);
+  color: #232323;
+  border: none;
+  padding: 0.85rem;
+  border-radius: 7px;
+  font-size: 1.08rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  margin-top: 0.5rem;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px #0003;
+}
+
+#formRegistroCliente button[type="submit"]:hover {
+  background: linear-gradient(90deg, #e50914 0%, #ffd700 100%);
+  color: #fff;
+}
