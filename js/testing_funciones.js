@@ -44,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('Debes iniciar sesión como empleado para realizar esta acción.');
       return;
     }
-
     // Envía la función al backend
     const res = await fetch('../php/funciones.php', {
       method: 'POST',
