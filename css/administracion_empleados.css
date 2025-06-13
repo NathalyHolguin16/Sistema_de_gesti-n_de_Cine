@@ -1,0 +1,270 @@
+body {
+  background: #181818;
+  color: #fff;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+}
+
+header {
+  background: #232323;
+  padding: 1.5rem 0 1rem 0;
+  box-shadow: 0 2px 12px #0006;
+  margin-bottom: 2rem;
+}
+
+header h1 {
+  text-align: center;
+  font-size: 2.3rem;
+  margin: 0;
+  letter-spacing: 2px;
+}
+
+header .rojo {
+  color: #e50914;
+  font-weight: bold;
+}
+
+header .dorado {
+  color: #9a8612;
+  font-weight: bold;
+}
+
+#adminNav {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin: 1rem 0;
+}
+
+#adminNav a {
+  color: #bca62e;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1.1rem;
+  padding: 0.4rem 1.1rem;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* Resalta "Inicio" en blanco */
+#adminNav a[href="index.html"]:hover,
+#adminNav a[href="index.html"]:focus {
+  background: #fff;
+  color: #232323;
+  outline: none;
+  box-shadow: none;
+}
+
+/* Resalta las opciones de administración en dorado */
+#adminNav a[href="test_peliculas.html"]:hover,
+#adminNav a[href="test_peliculas.html"]:focus,
+#adminNav a[href="administracion_empleados.html"]:hover,
+#adminNav a[href="administracion_empleados.html"]:focus {
+  background: #ffd700;
+  color: #232323;
+  outline: none;
+  box-shadow: none;
+}
+
+#logoutAdminBtn {
+  display: block;
+  margin: 0 auto 0.5rem auto;
+  background: #e50914;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.3rem;
+  border-radius: 7px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#logoutAdminBtn:hover {
+  background: #b0060f;
+}
+
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  background: #232323;
+  border-radius: 14px;
+  box-shadow: 0 8px 32px #0008;
+}
+
+#empleadosAdmin h2 {
+  color: #d2bd44;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  font-size: 2rem;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 12px #000a;
+  font-weight: bold;
+}
+
+#empleadosAdmin p {
+  text-align: center;
+  color: #ccc;
+  margin-bottom: 2rem;
+}
+
+#formEmpleado {
+  background: #181818;
+  padding: 1.5rem 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px #0005;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem 2rem;
+  margin-bottom: 2.5rem;
+  border: 2px solid #ffd70055;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  animation: fadeInUp 0.7s;
+}
+
+#formEmpleado label {
+  flex-basis: 100%;
+  color: #ffd700;
+  font-weight: 600;
+  margin-bottom: -0.7rem;
+  letter-spacing: 0.5px;
+}
+
+#formEmpleado input,
+#formEmpleado select {
+  flex-basis: 100%;
+  padding: 0.7rem;
+  border: 1.5px solid #bba215;
+  border-radius: 7px;
+  font-size: 1rem;
+  outline: none;
+  background: #232323;
+  color: #fff;
+  margin-bottom: 0.5rem;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+#formEmpleado input:focus,
+#formEmpleado select:focus {
+  border-color: #c1aa28;
+  background: #181818;
+}
+
+#formEmpleado button[type="submit"] {
+  background: linear-gradient(90deg, #ffd700 0%, #e50914 100%);
+  color: #232323;
+  border: none;
+  padding: 0.85rem 1.5rem;
+  border-radius: 7px;
+  font-size: 1.08rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px #0003;
+  margin-right: 1rem;
+}
+
+#formEmpleado button[type="submit"]:hover {
+  background: linear-gradient(90deg, #e50914 0%, #ffd700 100%);
+  color: #fff;
+}
+
+#formEmpleado button[type="button"] {
+  background: #232323;
+  color: #ffd700;
+  border: 2px solid #ffd700;
+  padding: 0.7rem 1.2rem;
+  border-radius: 7px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+  box-shadow: 0 2px 8px #0003;
+}
+
+#formEmpleado button[type="button"]:hover {
+  background: #ffd700;
+  color: #232323;
+  border: 2px solid #e50914;
+}
+
+#empleadosLista {
+  margin-top: 2rem;
+}
+
+#empleadosLista h3 {
+  color: #ffd700;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+#empleadosLista table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #181818;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px #0005;
+}
+
+#empleadosLista th,
+#empleadosLista td {
+  padding: 0.9rem 0.7rem;
+  text-align: left;
+}
+
+#empleadosLista th {
+  background: #232323;
+  color: #ffd700;
+  font-weight: bold;
+  border-bottom: 2px solid #ffd70055;
+}
+
+#empleadosLista td {
+  border-bottom: 1px solid #333;
+  color: #fff;
+}
+
+#empleadosLista tr:last-child td {
+  border-bottom: none;
+}
+
+#empleadosLista button {
+  background: #e50914;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-right: 0.5rem;
+  transition: background 0.2s;
+}
+
+#empleadosLista button:hover {
+  background: #ffd700;
+  color: #232323;
+}
+
+footer {
+  text-align: center;
+  color: #ffd700;
+  background: #232323;
+  padding: 1rem 0 0.5rem 0;
+  margin-top: 2rem;
+  border-radius: 0 0 14px 14px;
+  font-size: 1rem;
+  letter-spacing: 1px;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+

@@ -1,3 +1,12 @@
+header h1 {
+  text-align: center;
+  color: #f50b0b;
+}
+header h1 .dorado {
+  color: #af9b28;
+  font-weight: bold;
+  text-align: center;
+}
 /* Fondo y estructura */
 body {
   background: #181818;
@@ -169,4 +178,33 @@ main {
   .pelicula-banner-info {
     min-width: 0;
   }
+}
+footer {
+  text-align: center;
+  color: #ffd700;
+  background: #232323;
+  padding: 1rem 0 0.5rem 0;
+  margin-top: 2rem;
+  border-radius: 0 0 14px 14px;
+  font-size: 1rem;
+  letter-spacing: 1px;
+}
+
+nav a.cartelera-link {
+  color: #ffd700;
+  background: #232323;
+  padding: 0.5em 1.2em;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1.1em;
+  text-decoration: none;
+  box-shadow: 0 2px 8px #0003;
+  transition: background 0.2s, color 0.2s;
+  margin-left: 0.5em;
+  display: inline-block;
+}
+nav a.cartelera-link:hover {
+  background: #fff;
+  color: #232323;
+  text-decoration: none;
 }

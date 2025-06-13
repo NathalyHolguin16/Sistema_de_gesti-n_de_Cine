@@ -1,16 +1,28 @@
 body {
-  font-family: Arial, sans-serif;
-  background-color: #1e1e1e;
-  color: white;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(120deg, #181818 0%, #232323 70%, #ffd700 100%);
+  color: #fff;
   text-align: center;
+  min-height: 100vh;
+}
+
+h1, .titulo-reservas {
+  color: #ffd700;
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+  font-size: 2.1rem;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 12px #000a;
+  font-weight: bold;
 }
 
 .screen {
   margin: 20px auto;
   width: 40%;
-  height: 20px;
-  background-color: #ccc;
-  border-radius: 10px;
+  height: 24px;
+  background: linear-gradient(90deg, #ffd700 0%, #e50914 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px #0007;
 }
 
 .seat-map {
@@ -25,42 +37,56 @@ body {
 }
 
 .seat {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   background-color: #444;
   margin: 4px;
-  border-radius: 5px;
+  border-radius: 7px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s, border-color 0.2s;
+  border: 2px solid transparent;
+}
+
+.seat:hover:not(.occupied):not(.selected) {
+  background-color: #ffd700;
+  border-color: #e50914;
+  transform: scale(1.1);
 }
 
 .seat.selected {
   background-color: #6feaf6;
+  border-color: #ffd700;
 }
 
 .seat.occupied {
   background-color: #999;
   cursor: not-allowed;
+  border-color: #333;
 }
 
 #total {
   margin: 20px 0 10px 0;
   font-size: 1.2em;
   font-weight: bold;
+  color: #ffd700;
 }
 
 #confirmar-btn {
-  padding: 10px 30px;
-  font-size: 1.1em;
-  background: #d32f2f;
-  color: #fff;
+  padding: 12px 36px;
+  font-size: 1.15em;
+  background: linear-gradient(90deg, #ffd700 0%, #e50914 100%);
+  color: #232323;
   border: none;
-  border-radius: 5px;
+  border-radius: 7px;
   cursor: pointer;
   margin-bottom: 30px;
-  transition: background 0.2s;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px #0003;
+  transition: background 0.2s, color 0.2s;
 }
 
 #confirmar-btn:hover {
-  background: #b71c1c;
+  background: linear-gradient(90deg, #e50914 0%, #ffd700 100%);
+  color: #fff;
 }
