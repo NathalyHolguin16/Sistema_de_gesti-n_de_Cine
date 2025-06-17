@@ -955,3 +955,10 @@ nav a:active {
   outline: none;
   box-shadow: none;
 }
+.icono-cine {
+  vertical-align: middle;
+  width: 2.2rem;
+  height: 2.2rem;
+  margin-right: 0.5rem;
+  display: inline-block;
+}
