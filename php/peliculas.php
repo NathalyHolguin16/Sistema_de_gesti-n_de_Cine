@@ -20,9 +20,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id_pelicula'])) {
 
 // Listar películas
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    // Modify the query to include movies with estado = NULL
-    $query = "SELECT * FROM Peliculas WHERE estado IS NULL OR estado = TRUE ORDER BY id_pelicula DESC";
-    $result = $conn->query($query);
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 8;
+    $offset = ($page - 1) * $limit;
+
+    $query = "SELECT * FROM Peliculas WHERE estado IS NULL OR estado = TRUE ORDER BY id_pelicula DESC LIMIT ? OFFSET ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("ii", $limit, $offset);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if (!$result) {
         echo json_encode(['success' => false, 'error' => $conn->error]);
@@ -37,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $peliculas[] = $row;
     }
 
-    echo json_encode($peliculas);
+    echo json_encode(['success' => true, 'data' => $peliculas]);
     exit;
 }
 

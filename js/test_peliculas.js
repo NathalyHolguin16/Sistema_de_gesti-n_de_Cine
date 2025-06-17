@@ -1,37 +1,46 @@
+let currentPagePeliculas = 1;
+const limitPeliculas = 8;
+
 // Renderizado de tarjetas de películas
-async function cargarPeliculas() {
-  const res = await fetch('../php/peliculas.php');
-  const peliculas = await res.json();
+async function cargarPeliculas(page = 1) {
+  const res = await fetch(`../php/peliculas.php?page=${page}&limit=${limitPeliculas}`);
+  const response = await res.json();
   const grid = document.getElementById('peliculasGrid');
   grid.innerHTML = '';
-  if (!peliculas.length) {
-    grid.innerHTML = '<div class="mensaje-info">No hay películas registradas.</div>';
-    return;
-  }
-  peliculas.forEach(p => {
-    const card = document.createElement('div');
-    card.className = 'pelicula-card-admin';
-    card.innerHTML = `
-      <div class="pelicula-card-img">
-        <img src="${p.imagen ? '../resources/' + p.imagen : 'https://placehold.co/180x270?text=Sin+Imagen'}" alt="${p.titulo}" />
-      </div>
-      <div class="pelicula-card-info">
-        <h4 title="${p.titulo}">${p.titulo}</h4>
-        <span class="pelicula-chip"><i class="fa-solid fa-clock"></i> ${p.duracion_minutos} min</span>
-        <span class="pelicula-chip"><i class="fa-solid fa-user-shield"></i> ${p.clasificacion}</span>
-        <span class="pelicula-chip"><i class="fa-solid fa-masks-theater"></i> ${p.genero}</span>
-        <p class="pelicula-sinopsis">${p.sinopsis ? p.sinopsis : '<em>Sin sinopsis</em>'}</p>
-        <div class="pelicula-card-actions">
-          <button onclick="editarPelicula('${p.id_pelicula}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
-          <button onclick="eliminarPelicula('${p.id_pelicula}')" title="Eliminar" class="btn-eliminar"><i class="fa-solid fa-trash"></i></button>
-          <button onclick="agregarFuncion('${p.id_pelicula}', '${p.imagen}', '${p.titulo}')" title="Agregar Función">
-            <i class="fa-solid fa-calendar-plus"></i> Agregar Función
-          </button>
+
+  if (response.success) {
+    const peliculas = response.data;
+    if (!peliculas.length) {
+      grid.innerHTML = '<div class="mensaje-info">No hay películas registradas.</div>';
+      return;
+    }
+    peliculas.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'pelicula-card-admin';
+      card.innerHTML = `
+        <div class="pelicula-card-img">
+          <img src="${p.imagen ? '../resources/' + p.imagen : 'https://placehold.co/180x270?text=Sin+Imagen'}" alt="${p.titulo}" />
         </div>
-      </div>
-    `;
-    grid.appendChild(card);
-  });
+        <div class="pelicula-card-info">
+          <h4 title="${p.titulo}">${p.titulo}</h4>
+          <span class="pelicula-chip"><i class="fa-solid fa-clock"></i> ${p.duracion_minutos} min</span>
+          <span class="pelicula-chip"><i class="fa-solid fa-user-shield"></i> ${p.clasificacion}</span>
+          <span class="pelicula-chip"><i class="fa-solid fa-masks-theater"></i> ${p.genero}</span>
+          <p class="pelicula-sinopsis">${p.sinopsis ? p.sinopsis : '<em>Sin sinopsis</em>'}</p>
+          <div class="pelicula-card-actions">
+            <button onclick="editarPelicula('${p.id_pelicula}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
+            <button onclick="eliminarPelicula('${p.id_pelicula}')" title="Eliminar" class="btn-eliminar"><i class="fa-solid fa-trash"></i></button>
+            <button onclick="agregarFuncion('${p.id_pelicula}', '${p.imagen}', '${p.titulo}')" title="Agregar Función">
+              <i class="fa-solid fa-calendar-plus"></i> Agregar Función
+            </button>
+          </div>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  } else {
+    console.error("Error al cargar películas:", response.error);
+  }
 }
 
 // Función para redirigir a testing-funciones.html
@@ -115,5 +124,21 @@ document.getElementById('formAgregarPelicula').onsubmit = async function(e) {
   cargarPeliculas();
 };
 
+// Event listeners para paginación
+const prevPagePeliculas = document.getElementById('prevPagePeliculas');
+const nextPagePeliculas = document.getElementById('nextPagePeliculas');
+
+prevPagePeliculas.addEventListener('click', () => {
+  if (currentPagePeliculas > 1) {
+    currentPagePeliculas--;
+    cargarPeliculas(currentPagePeliculas);
+  }
+});
+
+nextPagePeliculas.addEventListener('click', () => {
+  currentPagePeliculas++;
+  cargarPeliculas(currentPagePeliculas);
+});
+
 // Cargar películas al iniciar
-cargarPeliculas();
+cargarPeliculas(currentPagePeliculas);

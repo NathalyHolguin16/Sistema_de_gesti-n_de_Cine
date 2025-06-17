@@ -5,6 +5,10 @@ require_once("conexion.php");
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
+    $offset = ($page - 1) * $limit;
+
     if (isset($_GET['id_empleado'])) {
         $query = "SELECT * FROM Empleados WHERE id_empleado = ?";
         $stmt = $conn->prepare($query);
@@ -13,13 +17,16 @@ if ($method === 'GET') {
         $result = $stmt->get_result();
         echo json_encode($result->fetch_assoc());
     } else {
-        $query = "SELECT * FROM Empleados";
-        $result = $conn->query($query);
+        $query = "SELECT * FROM Empleados LIMIT ? OFFSET ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("ii", $limit, $offset);
+        $stmt->execute();
+        $result = $stmt->get_result();
         $empleados = [];
         while ($row = $result->fetch_assoc()) {
             $empleados[] = $row;
         }
-        echo json_encode($empleados);
+        echo json_encode(['success' => true, 'data' => $empleados]);
     }
 } elseif ($method === 'POST') {
     $data = json_decode(file_get_contents("php://input"), true);

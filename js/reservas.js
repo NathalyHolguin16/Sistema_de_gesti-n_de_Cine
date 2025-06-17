@@ -110,3 +110,40 @@ async function marcarAsientosOcupados() {
 marcarAsientosOcupados();
 
 cargarPrecio();
+
+const cliente = JSON.parse(localStorage.getItem('cliente'));
+
+async function realizarReserva() {
+  if (!cliente) {
+    alert('Debes iniciar sesión para realizar una reserva.');
+    return;
+  }
+
+  const asientosSeleccionados = Array.from(document.querySelectorAll('.seat.selected')).map(seat => seat.id);
+  const totalPagado = asientosSeleccionados.length * precio;
+
+  const reservaData = {
+    id_funcion,
+    asientos: asientosSeleccionados,
+    cantidad: asientosSeleccionados.length,
+    total_pagado: totalPagado,
+    id_cliente: cliente.id_cliente
+  };
+
+  const res = await fetch('../php/reservas.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(reservaData)
+  });
+
+  const response = await res.json();
+
+  if (response.success && response.reserva) {
+    const reserva = response.reserva;
+    alert(`Reserva realizada con éxito:\n\nCliente: ${reserva.cliente}\nPelícula: ${reserva.pelicula}\nFunción: ${reserva.fecha} ${reserva.hora}\nAsientos: ${reserva.asientos}\nTotal pagado: $${reserva.total_pagado}`);
+  } else {
+    alert(`Error al realizar la reserva: ${response.error || 'No se pudo obtener los datos de la reserva.'}`);
+  }
+}
+
+confirmarBtn.addEventListener('click', realizarReserva);

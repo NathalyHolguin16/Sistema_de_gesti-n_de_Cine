@@ -20,4 +20,38 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Has cerrado sesión.');
         window.location.href = 'index.html';
     });
+
+    let currentPagePeliculas = 1;
+    const limitPeliculas = 10;
+
+    async function cargarPeliculas(page) {
+        const res = await fetch(`../php/peliculas.php?page=${page}&limit=${limitPeliculas}`);
+        const data = await res.json();
+
+        if (data.success) {
+            const peliculasTabla = document.getElementById('peliculasTabla');
+            peliculasTabla.innerHTML = '';
+            data.data.forEach(pelicula => {
+                peliculasTabla.innerHTML += `<tr><td>${pelicula.titulo}</td><td>${pelicula.genero}</td></tr>`;
+            });
+        }
+    }
+
+    // Event listeners para paginación
+    const prevPagePeliculas = document.getElementById('prevPagePeliculas');
+    const nextPagePeliculas = document.getElementById('nextPagePeliculas');
+
+    prevPagePeliculas.addEventListener('click', () => {
+        if (currentPagePeliculas > 1) {
+            currentPagePeliculas--;
+            cargarPeliculas(currentPagePeliculas);
+        }
+    });
+
+    nextPagePeliculas.addEventListener('click', () => {
+        currentPagePeliculas++;
+        cargarPeliculas(currentPagePeliculas);
+    });
+
+    cargarPeliculas(currentPagePeliculas);
 });

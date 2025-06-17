@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let editMode = false;
+    let currentPageEmpleados = 1;
+    const limitEmpleados = 10;
 
     // Cerrar sesión
     document.getElementById('logoutAdminBtn').addEventListener('click', () => {
@@ -26,25 +28,27 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Cargar lista de empleados
-    async function cargarEmpleados() {
-        const res = await fetch('../php/empleados.php');
-        const empleados = await res.json();
+    async function cargarEmpleados(page) {
+        const res = await fetch(`../php/empleados.php?page=${page}&limit=${limitEmpleados}`);
+        const data = await res.json();
 
-        empleadosTabla.innerHTML = '';
-        empleados.forEach(emp => {
-            empleadosTabla.innerHTML += `
-                <tr>
-                    <td>${emp.nombre}</td>
-                    <td>${emp.cargo}</td>
-                    <td>${emp.usuario}</td>
-                    <td>${emp.rol}</td>
-                    <td>
-                        <button onclick="editarEmpleado(${emp.id_empleado})">Editar</button>
-                        <button onclick="eliminarEmpleado(${emp.id_empleado})">Eliminar</button>
-                    </td>
-                </tr>
-            `;
-        });
+        if (data.success) {
+            empleadosTabla.innerHTML = '';
+            data.data.forEach(emp => {
+                empleadosTabla.innerHTML += `
+                    <tr>
+                        <td>${emp.nombre}</td>
+                        <td>${emp.cargo}</td>
+                        <td>${emp.usuario}</td>
+                        <td>${emp.rol}</td>
+                        <td>
+                            <button onclick="editarEmpleado(${emp.id_empleado})">Editar</button>
+                            <button onclick="eliminarEmpleado(${emp.id_empleado})">Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
     }
 
     // Registrar o modificar empleado
@@ -71,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
             formEmpleado.reset();
             btnCancelarEmpleado.style.display = 'none';
             editMode = false;
-            cargarEmpleados();
+            cargarEmpleados(currentPageEmpleados);
         } else {
             alert(result.error || 'Error al guardar empleado.');
         }
@@ -95,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const result = await res.json();
         if (result.success) {
             alert('Empleado eliminado');
-            cargarEmpleados();
+            cargarEmpleados(currentPageEmpleados);
         } else {
             alert(result.error || 'Error al eliminar empleado.');
         }
@@ -158,6 +162,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Event listeners para paginación
+    const prevPageEmpleados = document.getElementById('prevPageEmpleados');
+    const nextPageEmpleados = document.getElementById('nextPageEmpleados');
+
+    prevPageEmpleados.addEventListener('click', () => {
+        if (currentPageEmpleados > 1) {
+            currentPageEmpleados--;
+            cargarEmpleados(currentPageEmpleados);
+        }
+    });
+
+    nextPageEmpleados.addEventListener('click', () => {
+        currentPageEmpleados++;
+        cargarEmpleados(currentPageEmpleados);
+    });
+
     // Inicializar
-    cargarEmpleados();
+    cargarEmpleados(currentPageEmpleados);
 });

@@ -32,6 +32,11 @@
 <main>
   <section id="cartelera">
     <h2 class="titulo-cartelera">Películas en cartelera</h2>
+    <div id="paginacionPeliculas" class="paginacion-container">
+      <button id="prevPagePeliculas" class="paginacion-btn">Anterior</button>
+      <span id="currentPagePeliculas">1</span>
+      <button id="nextPagePeliculas" class="paginacion-btn">Siguiente</button>
+    </div>
     <div class="peliculas-grid" id="peliculasGrid">
       <!-- Ejemplo de una película en cartelera -->
       <div class="pelicula-item">
@@ -125,6 +130,11 @@
       <button type="submit">Iniciar sesión</button>
     </form>
   </section>
+
+  <div class="peliculas-grid" id="peliculasGrid">
+    <!-- Aquí se renderizan las películas -->
+  </div>
+</section>
 </main>
 
 <footer>
