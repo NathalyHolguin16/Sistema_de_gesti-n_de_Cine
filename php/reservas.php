@@ -27,12 +27,31 @@ foreach ($asientos as $asiento) {
     }
 }
 
-// Guardar la reserva
 $asientos_str = implode(',', $asientos);
-$query = "INSERT INTO Entradas (id_funcion, id_cliente, cantidad, asientos, total_pagado) VALUES (?, ?, ?, ?, ?)";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("iiisd", $id_funcion, $id_cliente, $cantidad, $asientos_str, $total_pagado);
-if ($stmt->execute()) {
+
+// Iniciar transacción
+$conn->begin_transaction();
+
+try {
+    // Verificar que la reserva no exista antes de guardar
+    $queryCheck = "SELECT id_entrada FROM Entradas WHERE id_funcion = ? AND id_cliente = ? AND asientos = ?";
+    $stmtCheck = $conn->prepare($queryCheck);
+    $stmtCheck->bind_param("iis", $id_funcion, $id_cliente, $asientos_str);
+    $stmtCheck->execute();
+    $resultCheck = $stmtCheck->get_result();
+
+    if ($resultCheck->num_rows > 0) {
+        echo json_encode(['success' => false, 'error' => 'La reserva ya existe.']);
+        $conn->rollback();
+        exit;
+    }
+
+    // Guardar la reserva
+    $query = "INSERT INTO Entradas (id_funcion, id_cliente, cantidad, asientos, total_pagado) VALUES (?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("iiisd", $id_funcion, $id_cliente, $cantidad, $asientos_str, $total_pagado);
+    $stmt->execute();
+
     // Registrar en la bitácora
     if ($id_cliente) {
         $accion = 'Reserva realizada';
@@ -42,8 +61,12 @@ if ($stmt->execute()) {
         $stmtBitacora->bind_param("iss", $id_cliente, $accion, $detalles);
         $stmtBitacora->execute();
     }
+
+    // Confirmar transacción
+    $conn->commit();
     echo json_encode(['success' => true]);
-} else {
-    echo json_encode(['success' => false, 'error' => $conn->error]);
+} catch (Exception $e) {
+    $conn->rollback();
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
 ?>

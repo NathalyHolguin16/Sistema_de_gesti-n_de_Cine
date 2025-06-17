@@ -53,5 +53,30 @@ document.addEventListener('DOMContentLoaded', () => {
         cargarPeliculas(currentPagePeliculas);
     });
 
+    async function cargarReporteReservas() {
+        const res = await fetch('../php/reportes.php');
+        const data = await res.json();
+
+        if (data.success) {
+            const tablaReservas = document.getElementById('tablaReservas');
+            tablaReservas.innerHTML = '';
+            data.data.forEach(reserva => {
+                tablaReservas.innerHTML += `
+                    <tr>
+                        <td>${reserva.cliente}</td>
+                        <td>${reserva.pelicula}</td>
+                        <td>${reserva.fecha}</td>
+                        <td>${reserva.hora}</td>
+                        <td>${reserva.asientos}</td>
+                        <td>${reserva.total_pagado}</td>
+                    </tr>`;
+            });
+        } else {
+            alert('Error al cargar el reporte de reservas.');
+        }
+    }
+
+    // Cargar el reporte de reservas al iniciar
+    cargarReporteReservas();
     cargarPeliculas(currentPagePeliculas);
 });

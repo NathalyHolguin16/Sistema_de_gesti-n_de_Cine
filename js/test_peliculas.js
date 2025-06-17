@@ -57,19 +57,25 @@ function agregarFuncion(idPelicula, imagen, titulo) {
 function editarPelicula(id) {
   fetch('../php/peliculas.php')
     .then(res => res.json())
-    .then(peliculas => {
-      const peli = peliculas.find(p => p.id_pelicula == id);
-      if (peli) {
-        document.getElementById('id_pelicula').value = peli.id_pelicula;
-        document.getElementById('titulo').value = peli.titulo;
-        document.getElementById('duracion_minutos').value = peli.duracion_minutos;
-        document.getElementById('clasificacion').value = peli.clasificacion;
-        document.getElementById('genero').value = peli.genero;
-        document.getElementById('sinopsis').value = peli.sinopsis;
-        document.getElementById('btnGuardar').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar Cambios';
-        document.getElementById('btnCancelar').style.display = "inline";
+    .then(response => {
+      if (response.success && Array.isArray(response.data)) {
+        const peliculas = response.data;
+        const peli = peliculas.find(p => p.id_pelicula == id);
+        if (peli) {
+          document.getElementById('id_pelicula').value = peli.id_pelicula;
+          document.getElementById('titulo').value = peli.titulo;
+          document.getElementById('duracion_minutos').value = peli.duracion_minutos;
+          document.getElementById('clasificacion').value = peli.clasificacion;
+          document.getElementById('genero').value = peli.genero;
+          document.getElementById('sinopsis').value = peli.sinopsis;
+          document.getElementById('btnGuardar').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar Cambios';
+          document.getElementById('btnCancelar').style.display = "inline";
+        }
+      } else {
+        console.error("Error al obtener películas o estructura inesperada:", response);
       }
-    });
+    })
+    .catch(error => console.error("Error al editar película:", error));
 }
 
 // Función para eliminar película
