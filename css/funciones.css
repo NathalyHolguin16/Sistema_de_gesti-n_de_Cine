@@ -1,3 +1,6 @@
+header {
+  border-top: 20px dotted #fff;
+}
 header h1 {
   text-align: center;
   color: #f50b0b;
@@ -207,4 +210,11 @@ nav a.cartelera-link:hover {
   background: #fff;
   color: #232323;
   text-decoration: none;
+}
+.icono-cine {
+  vertical-align: middle;
+  width: 2.2rem;
+  height: 2.2rem;
+  margin-right: 0.5rem;
+  display: inline-block;
 }

@@ -5,6 +5,7 @@
   color: #8a770a;
 }
 
+
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -12,10 +13,12 @@ body {
   color: #fff;
 }
 header {
+  border-top: 20px dotted #fff;
   background: #1f1f1f;
   padding: 1rem;
   text-align: center;
 }
+
 nav a {
   color: #fff;
   margin: 0 1rem;
@@ -951,4 +954,11 @@ nav a:focus,
 nav a:active {
   outline: none;
   box-shadow: none;
+}
+.icono-cine {
+  vertical-align: middle;
+  width: 2.2rem;
+  height: 2.2rem;
+  margin-right: 0.5rem;
+  display: inline-block;
 }
