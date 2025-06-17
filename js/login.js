@@ -32,12 +32,12 @@ formLogin.addEventListener('submit', async (e) => {
         document.getElementById('correoLogin').removeAttribute('required');
     } else {
         document.getElementById('usuarioLogin').removeAttribute('required');
-        document.getElementById('contrasenaLogin').removeAttribute('required');
+        document.getElementById('contrasenaEmpleadoLogin').removeAttribute('required');
     }
 
     if (isEmpleadoLogin) {
         const usuario = document.getElementById('usuarioLogin').value;
-        const contrasena = document.getElementById('contrasenaLogin').value;
+        const contrasena = document.getElementById('contrasenaEmpleadoLogin').value;
 
         if (!usuario || !contrasena) {
             alert('Por favor, completa todos los campos para iniciar sesión como empleado.');
@@ -60,25 +60,49 @@ formLogin.addEventListener('submit', async (e) => {
         }
     } else {
         const correo = document.getElementById('correoLogin').value;
+        const contrasena = document.getElementById('contrasenaLogin').value; // Nuevo campo
 
-        if (!correo) {
-            alert('Por favor, ingresa tu correo para iniciar sesión como cliente.');
+        if (!correo || !contrasena) {
+            alert('Por favor, completa todos los campos para iniciar sesión como cliente.');
             return;
         }
 
         const res = await fetch('../php/login_cliente.php', {
             method: 'POST',
-            body: JSON.stringify({ correo }),
+            body: JSON.stringify({ correo, contrasena }),
             headers: { 'Content-Type': 'application/json' }
         });
 
         const result = await res.json();
         if (result.success) {
             alert('¡Login exitoso como cliente!');
+            // Almacenar el cliente en localStorage con su ID
             localStorage.setItem('cliente', JSON.stringify({ id: result.id, nombre: result.nombre, correo }));
             window.location.href = 'index.html'; // Redirige al inicio
         } else {
             alert(result.error || 'Error al iniciar sesión como cliente.');
         }
+    }
+});
+
+// Improved session closure registration to handle browser limitations
+window.addEventListener('beforeunload', async (e) => {
+    const cliente = JSON.parse(localStorage.getItem('cliente'));
+    const empleado = JSON.parse(localStorage.getItem('empleado'));
+
+    if (cliente) {
+        navigator.sendBeacon('../php/bitacora_clientes.php', JSON.stringify({
+            id_cliente: cliente.id,
+            accion: 'Cierre de sesión',
+            detalles: `El cliente con ID ${cliente.id} cerró sesión.`
+        }));
+    }
+
+    if (empleado) {
+        navigator.sendBeacon('../php/bitacora_empleados.php', JSON.stringify({
+            id_empleado: empleado.id,
+            accion: 'Cierre de sesión',
+            detalles: `El empleado con ID ${empleado.id} cerró sesión.`
+        }));
     }
 });

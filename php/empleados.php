@@ -23,9 +23,13 @@ if ($method === 'GET') {
     }
 } elseif ($method === 'POST') {
     $data = json_decode(file_get_contents("php://input"), true);
+
+    // Hashear la contraseña
+    $hashedPassword = password_hash($data['contrasena'], PASSWORD_BCRYPT);
+
     $query = "INSERT INTO Empleados (nombre, cargo, usuario, contrasena, rol) VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($query);
-    $stmt->bind_param("sssss", $data['nombre'], $data['cargo'], $data['usuario'], $data['contrasena'], $data['rol']);
+    $stmt->bind_param("sssss", $data['nombre'], $data['cargo'], $data['usuario'], $hashedPassword, $data['rol']);
     if ($stmt->execute()) {
         // Registrar en la bitácora
         $id_empleado_admin = $data['id_empleado_admin'] ?? null; // ID del administrador que realiza la acción
@@ -43,9 +47,13 @@ if ($method === 'GET') {
     }
 } elseif ($method === 'PUT') {
     $data = json_decode(file_get_contents("php://input"), true);
+
+    // Hashear la contraseña
+    $hashedPassword = password_hash($data['contrasena'], PASSWORD_BCRYPT);
+
     $query = "UPDATE Empleados SET nombre = ?, cargo = ?, usuario = ?, contrasena = ?, rol = ? WHERE id_empleado = ?";
     $stmt = $conn->prepare($query);
-    $stmt->bind_param("sssssi", $data['nombre'], $data['cargo'], $data['usuario'], $data['contrasena'], $data['rol'], $data['id_empleado']);
+    $stmt->bind_param("sssssi", $data['nombre'], $data['cargo'], $data['usuario'], $hashedPassword, $data['rol'], $data['id_empleado']);
     if ($stmt->execute()) {
         // Registrar en la bitácora
         $id_empleado_admin = $data['id_empleado_admin'] ?? null; // ID del administrador que realiza la acción
