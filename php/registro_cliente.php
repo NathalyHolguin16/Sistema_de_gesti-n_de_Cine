@@ -1,6 +1,7 @@
 <?php
 header('Content-Type: application/json');
 require_once("conexion.php");
+require_once("client_info.php");
 
 // Desactivar advertencias
 error_reporting(0);
@@ -16,29 +17,73 @@ if (!isset($data['nombre'], $data['correo'], $data['telefono'], $data['contrasen
 $nombre = $data['nombre'];
 $correo = $data['correo'];
 $telefono = $data['telefono'];
-$contrasena = password_hash($data['contrasena'], PASSWORD_BCRYPT);
+$contrasena = $data['contrasena']; // La base de datos se encarga del hasheo automáticamente
 
-// Verificar que el correo sea único
-$query = "SELECT * FROM Clientes WHERE correo = ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("s", $correo);
-$stmt->execute();
-$result = $stmt->get_result();
+// Obtener información del cliente (IP y User-Agent)
+$clientInfo = obtenerInfoCliente();
 
-if ($result->num_rows > 0) {
-    echo json_encode(['success' => false, 'error' => 'El correo ya está registrado.']);
+// Validar IP si está configurado
+if (!validarIP($clientInfo['ip'])) {
+    error_log("Intento de registro bloqueado desde IP: " . $clientInfo['ip']);
+    echo json_encode(['success' => false, 'error' => 'Acceso denegado.']);
     exit;
 }
 
-// Insertar el cliente
-$query = "INSERT INTO Clientes (nombre, correo, telefono, contrasena) VALUES (?, ?, ?, ?)";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("ssss", $nombre, $correo, $telefono, $contrasena);
+try {
+    // Verificar que el correo sea único
+    $query = "SELECT * FROM Clientes WHERE correo = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->execute([$correo]);
+    $result = $stmt->fetch();
 
-if ($stmt->execute()) {
-    echo json_encode(['success' => true]);
-} else {
-    echo json_encode(['success' => false, 'error' => $conn->error]);
+    if ($result) {
+        echo json_encode(['success' => false, 'error' => 'El correo ya está registrado.']);
+        exit;
+    }
+
+    // Insertar el cliente y obtener el ID generado
+    $query = "INSERT INTO Clientes (nombre, correo, telefono, contrasena) VALUES (?, ?, ?, ?) RETURNING id_cliente";
+    $stmt = $conn->prepare($query);
+    $stmt->execute([$nombre, $correo, $telefono, $contrasena]);
+    $cliente = $stmt->fetch();
+
+    if ($cliente) {
+        // Registrar la acción de registro en la bitácora con información del cliente
+        $userAgentInfo = parsearUserAgent($clientInfo['user_agent']);
+        $detalles = sprintf(
+            'Registro de nuevo cliente. IP: %s, Navegador: %s %s, SO: %s, Dispositivo: %s',
+            $clientInfo['ip'],
+            $userAgentInfo['navegador'],
+            $userAgentInfo['version'],
+            $userAgentInfo['sistema_operativo'],
+            $userAgentInfo['dispositivo']
+        );
+        
+        registrarBitacoraCliente(
+            $conn, 
+            $cliente['id_cliente'], 
+            'Registro de cliente', 
+            $detalles
+        );
+
+        $response = [
+            'success' => true, 
+            'id' => $cliente['id_cliente'],
+            'message' => 'Cliente registrado exitosamente',
+            'client_info' => [
+                'ip' => $clientInfo['ip'],
+                'navegador' => $userAgentInfo['navegador'],
+                'sistema_operativo' => $userAgentInfo['sistema_operativo']
+            ]
+        ];
+
+        echo json_encode($response);
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Error al insertar el cliente.']);
+    }
+} catch (PDOException $e) {
+    error_log("Error en registro_cliente.php: " . $e->getMessage());
+    echo json_encode(['success' => false, 'error' => 'Error de base de datos.']);
 }
 exit;
 ?>

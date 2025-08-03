@@ -1,9 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const empleado = JSON.parse(localStorage.getItem('empleado'));
+    // Verificar autenticación con el nuevo sistema unificado
+    const usuario = JSON.parse(sessionStorage.getItem('usuario') || 'null');
+    const tipoUsuario = sessionStorage.getItem('tipoUsuario');
 
-    if (!empleado || empleado.rol !== 'Administrador') {
+    // Verificar que sea un empleado con rol de Administrador
+    if (!usuario || tipoUsuario !== 'empleado' || usuario.rol !== 'Administrador') {
         alert('Debes ser administrador para acceder a esta página.');
-        window.location.href = 'administracion.html';
+        window.location.href = 'login_unificado.html';
         return;
     }
 
@@ -19,35 +22,81 @@ document.addEventListener('DOMContentLoaded', () => {
     let editMode = false;
     let currentPageEmpleados = 1;
     const limitEmpleados = 10;
+    let paginationInfoEmpleados = {};
 
     // Cerrar sesión
     document.getElementById('logoutAdminBtn').addEventListener('click', () => {
-        localStorage.removeItem('empleado');
+        // Limpiar la nueva estructura de datos del sistema unificado
+        sessionStorage.removeItem('usuario');
+        sessionStorage.removeItem('tipoUsuario');
+        sessionStorage.removeItem('clientInfo');
+        
         alert('Has cerrado sesión.');
-        window.location.href = 'index.html';
+        window.location.href = 'login_unificado.html';
     });
 
     // Cargar lista de empleados
-    async function cargarEmpleados(page) {
-        const res = await fetch(`../php/empleados.php?page=${page}&limit=${limitEmpleados}`);
-        const data = await res.json();
+    async function cargarEmpleados(page = 1) {
+        try {
+            const res = await fetch(`../php/empleados.php?page=${page}&limit=${limitEmpleados}`);
+            const data = await res.json();
 
-        if (data.success) {
-            empleadosTabla.innerHTML = '';
-            data.data.forEach(emp => {
-                empleadosTabla.innerHTML += `
-                    <tr>
-                        <td>${emp.nombre}</td>
-                        <td>${emp.cargo}</td>
-                        <td>${emp.usuario}</td>
-                        <td>${emp.rol}</td>
-                        <td>
-                            <button onclick="editarEmpleado(${emp.id_empleado})">Editar</button>
-                            <button onclick="eliminarEmpleado(${emp.id_empleado})">Eliminar</button>
-                        </td>
-                    </tr>
-                `;
-            });
+            if (data.success) {
+                paginationInfoEmpleados = data.pagination;
+                currentPageEmpleados = paginationInfoEmpleados.current_page;
+
+                empleadosTabla.innerHTML = '';
+                
+                if (!data.data.length) {
+                    empleadosTabla.innerHTML = '<tr><td colspan="5" class="mensaje-info">No hay empleados registrados.</td></tr>';
+                    actualizarControlesPaginacionEmpleados();
+                    return;
+                }
+
+                data.data.forEach(emp => {
+                    empleadosTabla.innerHTML += `
+                        <tr>
+                            <td>${emp.nombre}</td>
+                            <td>${emp.cargo}</td>
+                            <td>${emp.usuario}</td>
+                            <td>${emp.rol}</td>
+                            <td>
+                                <button onclick="editarEmpleado(${emp.id_empleado})">Editar</button>
+                                <button onclick="eliminarEmpleado(${emp.id_empleado})">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                actualizarControlesPaginacionEmpleados();
+            } else {
+                console.error("Error al cargar empleados:", data.error);
+                empleadosTabla.innerHTML = '<tr><td colspan="5" class="mensaje-error">Error al cargar empleados</td></tr>';
+            }
+        } catch (error) {
+            console.error("Error en la petición:", error);
+            empleadosTabla.innerHTML = '<tr><td colspan="5" class="mensaje-error">Error de conexión</td></tr>';
+        }
+    }
+
+    // Función para actualizar los controles de paginación de empleados
+    function actualizarControlesPaginacionEmpleados() {
+        const prevBtn = document.getElementById('prevPageEmpleados');
+        const nextBtn = document.getElementById('nextPageEmpleados');
+        const pageInfo = document.getElementById('pageInfoEmpleados');
+
+        if (prevBtn) {
+            prevBtn.disabled = !paginationInfoEmpleados.has_prev_page;
+            prevBtn.style.opacity = paginationInfoEmpleados.has_prev_page ? '1' : '0.5';
+        }
+
+        if (nextBtn) {
+            nextBtn.disabled = !paginationInfoEmpleados.has_next_page;
+            nextBtn.style.opacity = paginationInfoEmpleados.has_next_page ? '1' : '0.5';
+        }
+
+        if (pageInfo) {
+            pageInfo.textContent = `Página ${paginationInfoEmpleados.current_page || 1} de ${paginationInfoEmpleados.total_pages || 1} (${paginationInfoEmpleados.total_items || 0} empleados)`;
         }
     }
 
@@ -166,17 +215,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const prevPageEmpleados = document.getElementById('prevPageEmpleados');
     const nextPageEmpleados = document.getElementById('nextPageEmpleados');
 
-    prevPageEmpleados.addEventListener('click', () => {
-        if (currentPageEmpleados > 1) {
-            currentPageEmpleados--;
-            cargarEmpleados(currentPageEmpleados);
-        }
-    });
+    if (prevPageEmpleados) {
+        prevPageEmpleados.addEventListener('click', () => {
+            if (paginationInfoEmpleados.has_prev_page && currentPageEmpleados > 1) {
+                cargarEmpleados(currentPageEmpleados - 1);
+            }
+        });
+    }
 
-    nextPageEmpleados.addEventListener('click', () => {
-        currentPageEmpleados++;
-        cargarEmpleados(currentPageEmpleados);
-    });
+    if (nextPageEmpleados) {
+        nextPageEmpleados.addEventListener('click', () => {
+            if (paginationInfoEmpleados.has_next_page) {
+                cargarEmpleados(currentPageEmpleados + 1);
+            }
+        });
+    }
+
+    // Función para ir a una página específica de empleados
+    function irAPaginaEmpleados(page) {
+        if (page >= 1 && page <= (paginationInfoEmpleados.total_pages || 1)) {
+            cargarEmpleados(page);
+        }
+    }
+
+    // Hacer la función disponible globalmente
+    window.irAPaginaEmpleados = irAPaginaEmpleados;
 
     // Inicializar
     cargarEmpleados(currentPageEmpleados);

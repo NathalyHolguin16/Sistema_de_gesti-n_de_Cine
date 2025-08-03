@@ -3,41 +3,76 @@ const esAdmin = window.location.pathname.includes('test_peliculas.html');
 
 let currentPagePeliculas = 1;
 const limitPeliculas = 8;
+let paginationInfoPeliculas = {};
 
 async function cargarPeliculas(page = 1) {
-  const res = await fetch(`../php/peliculas.php?page=${page}&limit=${limitPeliculas}`);
-  const response = await res.json();
-  const grid = document.getElementById('peliculasGrid');
-  grid.innerHTML = '';
+  try {
+    const res = await fetch(`../php/peliculas.php?page=${page}&limit=${limitPeliculas}`);
+    const response = await res.json();
+    const grid = document.getElementById('peliculasGrid');
+    grid.innerHTML = '';
 
-  if (response.success) {
-    const peliculas = response.data;
-    if (!peliculas.length) {
-      grid.innerHTML = '<div class="mensaje-info">No hay películas registradas.</div>';
-      return;
+    if (response.success) {
+      const peliculas = response.data;
+      paginationInfoPeliculas = response.pagination;
+      currentPagePeliculas = paginationInfoPeliculas.current_page;
+
+      if (!peliculas.length) {
+        grid.innerHTML = '<div class="mensaje-info">No hay películas registradas.</div>';
+        actualizarControlesPaginacion();
+        return;
+      }
+
+      peliculas.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'pelicula-card';
+        const generoClase = "genero " + (p.genero || '').toLowerCase().replace(/ /g, "-");
+        card.innerHTML = `
+          <div class="pelicula-info">
+            <img src="${p.imagen_url || '../resources/default.jpg'}" alt="${p.titulo}" class="pelicula-poster" />
+            <h3>${p.titulo}</h3>
+            <p class="${generoClase}">${p.genero}</p>
+            <p>Duración: ${p.duracion_minutos} min</p>
+            <p>Clasificación: ${p.clasificacion}</p>
+            <button class="ver-funciones-btn" onclick="verFunciones(${p.id_pelicula})">Ver funciones</button>
+            ${esAdmin ? `
+              <button onclick="editarPelicula(${p.id_pelicula})">Editar</button>
+              <button onclick="eliminarPelicula(${p.id_pelicula})">Eliminar</button>
+            ` : ''}
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      actualizarControlesPaginacion();
+    } else {
+      console.error("Error al cargar películas:", response.error);
+      grid.innerHTML = '<div class="mensaje-error">Error al cargar películas</div>';
     }
-    peliculas.forEach(p => {
-      const card = document.createElement('div');
-      card.className = 'pelicula-card';
-      const generoClase = "genero " + (p.genero || '').toLowerCase().replace(/ /g, "-");
-      card.innerHTML = `
-        <div class="pelicula-info">
-          <img src="${p.imagen_url || '../resources/default.jpg'}" alt="${p.titulo}" class="pelicula-poster" />
-          <h3>${p.titulo}</h3>
-          <p class="${generoClase}">${p.genero}</p>
-          <p>Duración: ${p.duracion_minutos} min</p>
-          <p>Clasificación: ${p.clasificacion}</p>
-          <button class="ver-funciones-btn" onclick="verFunciones(${p.id_pelicula})">Ver funciones</button>
-          ${esAdmin ? `
-            <button onclick="editarPelicula(${p.id_pelicula})">Editar</button>
-            <button onclick="eliminarPelicula(${p.id_pelicula})">Eliminar</button>
-          ` : ''}
-        </div>
-      `;
-      grid.appendChild(card);
-    });
-  } else {
-    console.error("Error al cargar películas:", response.error);
+  } catch (error) {
+    console.error("Error en la petición:", error);
+    document.getElementById('peliculasGrid').innerHTML = '<div class="mensaje-error">Error de conexión</div>';
+  }
+}
+
+// Función para actualizar los controles de paginación
+function actualizarControlesPaginacion() {
+  const prevBtn = document.getElementById('prevPagePeliculas');
+  const nextBtn = document.getElementById('nextPagePeliculas');
+  const pageInfo = document.getElementById('pageInfoPeliculas');
+
+  if (prevBtn) {
+    prevBtn.disabled = !paginationInfoPeliculas.has_prev_page;
+    prevBtn.style.opacity = paginationInfoPeliculas.has_prev_page ? '1' : '0.5';
+  }
+
+  if (nextBtn) {
+    nextBtn.disabled = !paginationInfoPeliculas.has_next_page;
+    nextBtn.style.opacity = paginationInfoPeliculas.has_next_page ? '1' : '0.5';
+  }
+
+  if (pageInfo) {
+    pageInfo.textContent = `Página ${paginationInfoPeliculas.current_page || 1} de ${paginationInfoPeliculas.total_pages || 1} (${paginationInfoPeliculas.total_items || 0} películas)`;
   }
 }
 
@@ -109,20 +144,22 @@ function showSection(sectionId) {
 
 // Verificar si el cliente o empleado está logueado
 function verificarLogin() {
-  const cliente = JSON.parse(localStorage.getItem('cliente'));
-  const empleado = JSON.parse(localStorage.getItem('empleado'));
+  // Usar el nuevo sistema unificado de autenticación
+  const usuario = JSON.parse(sessionStorage.getItem('usuario') || 'null');
+  const tipoUsuario = sessionStorage.getItem('tipoUsuario');
 
-  if (cliente) {
+  if (usuario && tipoUsuario === 'cliente') {
     // Mostrar mensaje de bienvenida para clientes
     document.getElementById('userOptions').style.display = 'none';
     document.getElementById('welcomeMessage').style.display = 'inline';
-    document.getElementById('clienteNombre').textContent = cliente.nombre;
-  } else if (empleado) {
+    document.getElementById('clienteNombre').textContent = usuario.nombre;
+    document.getElementById('adminOptions').style.display = 'none';
+  } else if (usuario && tipoUsuario === 'empleado') {
     // Mostrar opciones de administración para empleados
     document.getElementById('userOptions').style.display = 'none';
     document.getElementById('welcomeMessage').style.display = 'inline';
-    document.getElementById('clienteNombre').textContent = empleado.nombre;
-    if (empleado.rol === 'Administrador' || empleado.rol === 'Empleado') {
+    document.getElementById('clienteNombre').textContent = usuario.nombre;
+    if (usuario.rol === 'Administrador' || usuario.rol === 'Empleado') {
       document.getElementById('adminOptions').style.display = 'inline';
     }
   } else {
@@ -135,8 +172,11 @@ function verificarLogin() {
 
 // Cerrar sesión
 document.getElementById('logoutBtn').addEventListener('click', () => {
-  localStorage.removeItem('cliente');
-  localStorage.removeItem('empleado');
+  // Limpiar la nueva estructura de datos del sistema unificado
+  sessionStorage.removeItem('usuario');
+  sessionStorage.removeItem('tipoUsuario');
+  sessionStorage.removeItem('clientInfo');
+  
   verificarLogin();
   alert('Has cerrado sesión.');
   window.location.href = 'index.html'; // Redirige al inicio
@@ -194,17 +234,28 @@ document.getElementById('formLoginCliente').addEventListener('submit', async (e)
 const prevPagePeliculas = document.getElementById('prevPagePeliculas');
 const nextPagePeliculas = document.getElementById('nextPagePeliculas');
 
-prevPagePeliculas.addEventListener('click', () => {
-  if (currentPagePeliculas > 1) {
-    currentPagePeliculas--;
-    cargarPeliculas(currentPagePeliculas);
-  }
-});
+if (prevPagePeliculas) {
+  prevPagePeliculas.addEventListener('click', () => {
+    if (paginationInfoPeliculas.has_prev_page && currentPagePeliculas > 1) {
+      cargarPeliculas(currentPagePeliculas - 1);
+    }
+  });
+}
 
-nextPagePeliculas.addEventListener('click', () => {
-  currentPagePeliculas++;
-  cargarPeliculas(currentPagePeliculas);
-});
+if (nextPagePeliculas) {
+  nextPagePeliculas.addEventListener('click', () => {
+    if (paginationInfoPeliculas.has_next_page) {
+      cargarPeliculas(currentPagePeliculas + 1);
+    }
+  });
+}
+
+// Función para ir a una página específica
+function irAPagina(page) {
+  if (page >= 1 && page <= (paginationInfoPeliculas.total_pages || 1)) {
+    cargarPeliculas(page);
+  }
+}
 
 // Ejecutar la verificación al cargar la página
 document.addEventListener('DOMContentLoaded', verificarLogin);

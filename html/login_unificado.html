@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - CineFacil</title>
+    <link rel="stylesheet" href="../css/login_unificado.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-form">
+            <div class="logo">
+                <img src="../resources/logoCF.png" alt="CineFacil Logo">
+                <h1>CineFacil</h1>
+            </div>
+            
+            <h2>Iniciar Sesión</h2>
+            <p class="subtitle">Acceso para clientes y empleados</p>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="credencial">Correo o Usuario:</label>
+                    <input type="text" id="credencial" name="credencial" required 
+                           placeholder="Ingresa tu correo o nombre de usuario">
+                    <small class="help-text">
+                        • Clientes: Usa tu correo electrónico<br>
+                        • Empleados: Usa tu usuario o correo
+                    </small>
+                </div>
+                
+                <div class="input-group">
+                    <label for="contrasena">Contraseña:</label>
+                    <input type="password" id="contrasena" name="contrasena" required 
+                           placeholder="Ingresa tu contraseña">
+                </div>
+                
+                <button type="submit" id="loginBtn" class="login-btn">
+                    <span class="btn-text">Iniciar Sesión</span>
+                    <span class="loading-spinner" style="display: none;">⟳</span>
+                </button>
+                
+                <div id="errorMessage" class="error-message" style="display: none;"></div>
+                <div id="successMessage" class="success-message" style="display: none;"></div>
+            </form>
+            
+            <div class="form-footer">
+                <p>¿No tienes cuenta? <a href="registro_cliente.html">Regístrate como cliente</a></p>
+                <p><a href="index.html">← Volver al inicio</a></p>
+            </div>
+            
+            <!-- Información de seguridad -->
+            <div class="security-info">
+                <h3>🛡️ Información de Seguridad</h3>
+                <div id="clientInfo" class="client-info" style="display: none;">
+                    <p><strong>IP:</strong> <span id="userIP">-</span></p>
+                    <p><strong>Navegador:</strong> <span id="userBrowser">-</span></p>
+                    <p><strong>Sistema:</strong> <span id="userOS">-</span></p>
+                    <p><strong>Dispositivo:</strong> <span id="userDevice">-</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/login_unificado.js"></script>
+</body>
+</html>

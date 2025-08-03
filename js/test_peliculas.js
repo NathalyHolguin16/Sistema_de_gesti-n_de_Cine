@@ -1,45 +1,80 @@
 let currentPagePeliculas = 1;
 const limitPeliculas = 8;
+let paginationInfo = {};
 
 // Renderizado de tarjetas de películas
 async function cargarPeliculas(page = 1) {
-  const res = await fetch(`../php/peliculas.php?page=${page}&limit=${limitPeliculas}`);
-  const response = await res.json();
-  const grid = document.getElementById('peliculasGrid');
-  grid.innerHTML = '';
+  try {
+    const res = await fetch(`../php/peliculas.php?page=${page}&limit=${limitPeliculas}`);
+    const response = await res.json();
+    const grid = document.getElementById('peliculasGrid');
+    grid.innerHTML = '';
 
-  if (response.success) {
-    const peliculas = response.data;
-    if (!peliculas.length) {
-      grid.innerHTML = '<div class="mensaje-info">No hay películas registradas.</div>';
-      return;
-    }
-    peliculas.forEach(p => {
-      const card = document.createElement('div');
-      card.className = 'pelicula-card-admin';
-      card.innerHTML = `
-        <div class="pelicula-card-img">
-          <img src="${p.imagen ? '../resources/' + p.imagen : 'https://placehold.co/180x270?text=Sin+Imagen'}" alt="${p.titulo}" />
-        </div>
-        <div class="pelicula-card-info">
-          <h4 title="${p.titulo}">${p.titulo}</h4>
-          <span class="pelicula-chip"><i class="fa-solid fa-clock"></i> ${p.duracion_minutos} min</span>
-          <span class="pelicula-chip"><i class="fa-solid fa-user-shield"></i> ${p.clasificacion}</span>
-          <span class="pelicula-chip"><i class="fa-solid fa-masks-theater"></i> ${p.genero}</span>
-          <p class="pelicula-sinopsis">${p.sinopsis ? p.sinopsis : '<em>Sin sinopsis</em>'}</p>
-          <div class="pelicula-card-actions">
-            <button onclick="editarPelicula('${p.id_pelicula}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
-            <button onclick="eliminarPelicula('${p.id_pelicula}')" title="Eliminar" class="btn-eliminar"><i class="fa-solid fa-trash"></i></button>
-            <button onclick="agregarFuncion('${p.id_pelicula}', '${p.imagen}', '${p.titulo}')" title="Agregar Función">
-              <i class="fa-solid fa-calendar-plus"></i> Agregar Función
-            </button>
+    if (response.success) {
+      const peliculas = response.data;
+      paginationInfo = response.pagination;
+      currentPagePeliculas = paginationInfo.current_page;
+
+      if (!peliculas.length) {
+        grid.innerHTML = '<div class="mensaje-info">No hay películas registradas.</div>';
+        actualizarControlesPaginacion();
+        return;
+      }
+
+      peliculas.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'pelicula-card-admin';
+        card.innerHTML = `
+          <div class="pelicula-card-img">
+            <img src="${p.imagen ? '../resources/' + p.imagen : 'https://placehold.co/180x270?text=Sin+Imagen'}" alt="${p.titulo}" />
           </div>
-        </div>
-      `;
-      grid.appendChild(card);
-    });
-  } else {
-    console.error("Error al cargar películas:", response.error);
+          <div class="pelicula-card-info">
+            <h4 title="${p.titulo}">${p.titulo}</h4>
+            <span class="pelicula-chip"><i class="fa-solid fa-clock"></i> ${p.duracion_minutos} min</span>
+            <span class="pelicula-chip"><i class="fa-solid fa-user-shield"></i> ${p.clasificacion}</span>
+            <span class="pelicula-chip"><i class="fa-solid fa-masks-theater"></i> ${p.genero}</span>
+            <p class="pelicula-sinopsis">${p.sinopsis ? p.sinopsis : '<em>Sin sinopsis</em>'}</p>
+            <div class="pelicula-card-actions">
+              <button onclick="editarPelicula('${p.id_pelicula}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
+              <button onclick="eliminarPelicula('${p.id_pelicula}')" title="Eliminar" class="btn-eliminar"><i class="fa-solid fa-trash"></i></button>
+              <button onclick="agregarFuncion('${p.id_pelicula}', '${p.imagen}', '${p.titulo}')" title="Agregar Función">
+                <i class="fa-solid fa-calendar-plus"></i> Agregar Función
+              </button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      actualizarControlesPaginacion();
+    } else {
+      console.error("Error al cargar películas:", response.error);
+      grid.innerHTML = '<div class="mensaje-error">Error al cargar películas</div>';
+    }
+  } catch (error) {
+    console.error("Error en la petición:", error);
+    document.getElementById('peliculasGrid').innerHTML = '<div class="mensaje-error">Error de conexión</div>';
+  }
+}
+
+// Función para actualizar los controles de paginación
+function actualizarControlesPaginacion() {
+  const prevBtn = document.getElementById('prevPagePeliculas');
+  const nextBtn = document.getElementById('nextPagePeliculas');
+  const pageInfo = document.getElementById('pageInfoPeliculas');
+
+  if (prevBtn) {
+    prevBtn.disabled = !paginationInfo.has_prev_page;
+    prevBtn.style.opacity = paginationInfo.has_prev_page ? '1' : '0.5';
+  }
+
+  if (nextBtn) {
+    nextBtn.disabled = !paginationInfo.has_next_page;
+    nextBtn.style.opacity = paginationInfo.has_next_page ? '1' : '0.5';
+  }
+
+  if (pageInfo) {
+    pageInfo.textContent = `Página ${paginationInfo.current_page || 1} de ${paginationInfo.total_pages || 1} (${paginationInfo.total_items || 0} películas)`;
   }
 }
 
@@ -134,17 +169,30 @@ document.getElementById('formAgregarPelicula').onsubmit = async function(e) {
 const prevPagePeliculas = document.getElementById('prevPagePeliculas');
 const nextPagePeliculas = document.getElementById('nextPagePeliculas');
 
-prevPagePeliculas.addEventListener('click', () => {
-  if (currentPagePeliculas > 1) {
-    currentPagePeliculas--;
-    cargarPeliculas(currentPagePeliculas);
-  }
-});
+if (prevPagePeliculas) {
+  prevPagePeliculas.addEventListener('click', () => {
+    if (paginationInfo.has_prev_page && currentPagePeliculas > 1) {
+      cargarPeliculas(currentPagePeliculas - 1);
+    }
+  });
+}
 
-nextPagePeliculas.addEventListener('click', () => {
-  currentPagePeliculas++;
-  cargarPeliculas(currentPagePeliculas);
-});
+if (nextPagePeliculas) {
+  nextPagePeliculas.addEventListener('click', () => {
+    if (paginationInfo.has_next_page) {
+      cargarPeliculas(currentPagePeliculas + 1);
+    }
+  });
+}
+
+// Función para ir a una página específica
+function irAPagina(page) {
+  if (page >= 1 && page <= (paginationInfo.total_pages || 1)) {
+    cargarPeliculas(page);
+  }
+}
 
 // Cargar películas al iniciar
-cargarPeliculas(currentPagePeliculas);
+document.addEventListener('DOMContentLoaded', () => {
+  cargarPeliculas(currentPagePeliculas);
+});

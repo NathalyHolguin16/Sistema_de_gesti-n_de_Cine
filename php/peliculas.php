@@ -8,42 +8,68 @@ $resourcesDir = realpath(__DIR__ . '/../resources/');
 // Obtener película por ID
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id_pelicula'])) {
     $id_pelicula = $_GET['id_pelicula'];
-    $query = "SELECT * FROM Peliculas WHERE id_pelicula = ?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("i", $id_pelicula);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $pelicula = $result->fetch_assoc();
-    echo json_encode($pelicula);
+    try {
+        $query = "SELECT * FROM Peliculas WHERE id_pelicula = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->execute([$id_pelicula]);
+        $pelicula = $stmt->fetch();
+        echo json_encode($pelicula);
+    } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
     exit;
 }
 
 // Listar películas
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 8;
+    $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+    $limit = isset($_GET['limit']) ? min(50, max(1, (int)$_GET['limit'])) : 8;
     $offset = ($page - 1) * $limit;
 
-    $query = "SELECT * FROM Peliculas WHERE estado IS NULL OR estado = TRUE ORDER BY id_pelicula DESC LIMIT ? OFFSET ?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("ii", $limit, $offset);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    try {
+        // Contar total de películas activas
+        $countQuery = "SELECT COUNT(*) as total FROM Peliculas WHERE estado IS NULL OR estado = true";
+        $countStmt = $conn->prepare($countQuery);
+        $countStmt->execute();
+        $totalResult = $countStmt->fetch();
+        $total = $totalResult['total'];
+        
+        // Calcular información de paginación
+        $totalPages = ceil($total / $limit);
+        $hasNextPage = $page < $totalPages;
+        $hasPrevPage = $page > 1;
 
-    if (!$result) {
-        echo json_encode(['success' => false, 'error' => $conn->error]);
-        exit;
-    }
+        // Obtener películas de la página actual
+        $query = "SELECT * FROM Peliculas WHERE estado IS NULL OR estado = true ORDER BY id_pelicula DESC LIMIT ? OFFSET ?";
+        $stmt = $conn->prepare($query);
+        $stmt->execute([$limit, $offset]);
+        $result = $stmt->fetchAll();
 
-    $peliculas = [];
-    while ($row = $result->fetch_assoc()) {
-        if (!empty($row['imagen'])) {
-            $row['imagen_url'] = '../resources/' . $row['imagen'];
+        $peliculas = [];
+        foreach ($result as $row) {
+            if (!empty($row['imagen'])) {
+                $row['imagen_url'] = '../resources/' . $row['imagen'];
+            }
+            $peliculas[] = $row;
         }
-        $peliculas[] = $row;
-    }
 
-    echo json_encode(['success' => true, 'data' => $peliculas]);
+        echo json_encode([
+            'success' => true, 
+            'data' => $peliculas,
+            'pagination' => [
+                'current_page' => $page,
+                'total_pages' => $totalPages,
+                'total_items' => $total,
+                'items_per_page' => $limit,
+                'has_next_page' => $hasNextPage,
+                'has_prev_page' => $hasPrevPage,
+                'showing_from' => $offset + 1,
+                'showing_to' => min($offset + $limit, $total)
+            ]
+        ]);
+    } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
     exit;
 }
 
@@ -68,55 +94,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Add bitácora logging for movie actions
-    if ($modo === 'agregar') {
-        $query = "INSERT INTO Peliculas (titulo, duracion_minutos, clasificacion, genero, sinopsis, estado, imagen)
-                  VALUES (?, ?, ?, ?, ?, ?, ?)";
-        $stmt = $conn->prepare($query);
-        $stmt->bind_param("sisssis", $titulo, $duracion, $clasificacion, $genero, $sinopsis, $estado, $imagen);
-        $success = $stmt->execute();
-
-        if ($success && isset($_POST['id_empleado'])) {
-            $id_empleado = $_POST['id_empleado'];
-            $accion = 'Agregar Película';
-            $detalles = "Título: $titulo, Duración: $duracion, Clasificación: $clasificacion";
-            $bitacora_query = "INSERT INTO BitacoraEmpleados (id_empleado, accion, detalles) VALUES (?, ?, ?)";
-            $bitacora_stmt = $conn->prepare($bitacora_query);
-            $bitacora_stmt->bind_param("iss", $id_empleado, $accion, $detalles);
-            $bitacora_stmt->execute();
-        }
-
-        echo json_encode(['success' => $success]);
-        $stmt->close();
-        exit;
-    } elseif ($modo === 'editar') {
-        $id = $_POST['id_pelicula'] ?? null;
-        if ($id) {
-            if ($imagen) {
-                $query = "UPDATE Peliculas SET titulo=?, duracion_minutos=?, clasificacion=?, genero=?, sinopsis=?, estado=?, imagen=? WHERE id_pelicula=?";
-                $stmt = $conn->prepare($query);
-                $stmt->bind_param("sisssisi", $titulo, $duracion, $clasificacion, $genero, $sinopsis, $estado, $imagen, $id);
-            } else {
-                $query = "UPDATE Peliculas SET titulo=?, duracion_minutos=?, clasificacion=?, genero=?, sinopsis=?, estado=? WHERE id_pelicula=?";
-                $stmt = $conn->prepare($query);
-                $stmt->bind_param("sisssii", $titulo, $duracion, $clasificacion, $genero, $sinopsis, $estado, $id);
-            }
-            $success = $stmt->execute();
+    try {
+        // Add bitácora logging for movie actions
+        if ($modo === 'agregar') {
+            $query = "INSERT INTO Peliculas (titulo, duracion_minutos, clasificacion, genero, sinopsis, estado, imagen)
+                      VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $stmt = $conn->prepare($query);
+            $success = $stmt->execute([$titulo, $duracion, $clasificacion, $genero, $sinopsis, $estado, $imagen]);
 
             if ($success && isset($_POST['id_empleado'])) {
                 $id_empleado = $_POST['id_empleado'];
-                $accion = 'Editar Película';
-                $detalles = "ID: $id, Título: $titulo, Duración: $duracion";
+                $accion = 'Agregar Película';
+                $detalles = "Título: $titulo, Duración: $duracion, Clasificación: $clasificacion";
                 $bitacora_query = "INSERT INTO BitacoraEmpleados (id_empleado, accion, detalles) VALUES (?, ?, ?)";
                 $bitacora_stmt = $conn->prepare($bitacora_query);
-                $bitacora_stmt->bind_param("iss", $id_empleado, $accion, $detalles);
-                $bitacora_stmt->execute();
+                $bitacora_stmt->execute([$id_empleado, $accion, $detalles]);
             }
 
             echo json_encode(['success' => $success]);
-            $stmt->close();
             exit;
+        } elseif ($modo === 'editar') {
+            $id = $_POST['id_pelicula'] ?? null;
+            if ($id) {
+                if ($imagen) {
+                    $query = "UPDATE Peliculas SET titulo=?, duracion_minutos=?, clasificacion=?, genero=?, sinopsis=?, estado=?, imagen=? WHERE id_pelicula=?";
+                    $stmt = $conn->prepare($query);
+                    $success = $stmt->execute([$titulo, $duracion, $clasificacion, $genero, $sinopsis, $estado, $imagen, $id]);
+                } else {
+                    $query = "UPDATE Peliculas SET titulo=?, duracion_minutos=?, clasificacion=?, genero=?, sinopsis=?, estado=? WHERE id_pelicula=?";
+                    $stmt = $conn->prepare($query);
+                    $success = $stmt->execute([$titulo, $duracion, $clasificacion, $genero, $sinopsis, $estado, $id]);
+                }
+
+                if ($success && isset($_POST['id_empleado'])) {
+                    $id_empleado = $_POST['id_empleado'];
+                    $accion = 'Editar Película';
+                    $detalles = "ID: $id, Título: $titulo, Duración: $duracion";
+                    $bitacora_query = "INSERT INTO BitacoraEmpleados (id_empleado, accion, detalles) VALUES (?, ?, ?)";
+                    $bitacora_stmt = $conn->prepare($bitacora_query);
+                    $bitacora_stmt->execute([$id_empleado, $accion, $detalles]);
+                }
+
+                echo json_encode(['success' => $success]);
+                exit;
+            }
         }
+    } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
     echo json_encode(['success' => false, 'error' => 'Datos insuficientes']);
     exit;
@@ -127,12 +151,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
     parse_str(file_get_contents("php://input"), $data);
     $id = $data['id_pelicula'] ?? null;
     if ($id) {
-        $query = "DELETE FROM Peliculas WHERE id_pelicula=?";
-        $stmt = $conn->prepare($query);
-        $stmt->bind_param("i", $id);
-        $success = $stmt->execute();
-        echo json_encode(['success' => $success]);
-        $stmt->close();
+        try {
+            $query = "DELETE FROM Peliculas WHERE id_pelicula=?";
+            $stmt = $conn->prepare($query);
+            $success = $stmt->execute([$id]);
+            echo json_encode(['success' => $success]);
+        } catch (PDOException $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
     } else {
         echo json_encode(['success' => false, 'error' => 'ID no proporcionado']);
     }
