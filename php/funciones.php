@@ -10,7 +10,7 @@ try {
         $offset = ($page - 1) * $limit;
 
         // Contar total de funciones
-        $countQuery = "SELECT COUNT(*) as total FROM Funciones";
+        $countQuery = "SELECT COUNT(*) as total FROM funciones";
         $countStmt = $conn->prepare($countQuery);
         $countStmt->execute();
         $totalResult = $countStmt->fetch();
@@ -23,8 +23,8 @@ try {
 
         // Obtener funciones con información de películas
         $query = "SELECT f.*, p.titulo as pelicula_titulo 
-                  FROM Funciones f 
-                  JOIN Peliculas p ON f.id_pelicula = p.id_pelicula 
+                  FROM funciones f 
+                  JOIN peliculas p ON f.id_pelicula = p.id_pelicula 
                   ORDER BY f.fecha DESC, f.hora_inicio DESC 
                   LIMIT ? OFFSET ?";
         $stmt = $conn->prepare($query);
@@ -56,7 +56,7 @@ try {
         $offset = ($page - 1) * $limit;
 
         // Contar funciones de la película
-        $countQuery = "SELECT COUNT(*) as total FROM Funciones WHERE id_pelicula = ?";
+        $countQuery = "SELECT COUNT(*) as total FROM funciones WHERE id_pelicula = ?";
         $countStmt = $conn->prepare($countQuery);
         $countStmt->execute([$id_pelicula]);
         $totalResult = $countStmt->fetch();
@@ -68,7 +68,7 @@ try {
         $hasPrevPage = $page > 1;
 
         // Obtener funciones de la película
-        $query = "SELECT * FROM Funciones WHERE id_pelicula = ? ORDER BY fecha ASC, hora_inicio ASC LIMIT ? OFFSET ?";
+        $query = "SELECT * FROM funciones WHERE id_pelicula = ? ORDER BY fecha ASC, hora_inicio ASC LIMIT ? OFFSET ?";
         $stmt = $conn->prepare($query);
         $stmt->execute([$id_pelicula, $limit, $offset]);
         $funciones = $stmt->fetchAll();
@@ -90,21 +90,10 @@ try {
         exit;
     }
 
-    // Listar funciones de una película
-    if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id_pelicula'])) {
-        $id_pelicula = $_GET['id_pelicula'];
-        $query = "SELECT * FROM Funciones WHERE id_pelicula = ?";
-        $stmt = $conn->prepare($query);
-        $stmt->execute([$id_pelicula]);
-        $funciones = $stmt->fetchAll();
-        echo json_encode($funciones);
-        exit;
-    }
-
     // Obtener función por ID
     if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id_funcion'])) {
         $id_funcion = $_GET['id_funcion'];
-        $query = "SELECT * FROM Funciones WHERE id_funcion = ?";
+        $query = "SELECT * FROM funciones WHERE id_funcion = ?";
         $stmt = $conn->prepare($query);
         $stmt->execute([$id_funcion]);
         $funcion = $stmt->fetch();
@@ -122,12 +111,12 @@ try {
         $id_empleado = $data['id_empleado'] ?? null; // ID del empleado
 
         if ($id_pelicula && $fecha && $hora && $precio !== null) {
-            $query = "INSERT INTO Funciones (id_pelicula, fecha, hora_inicio, precio) VALUES (?, ?, ?, ?)";
+            $query = "INSERT INTO funciones (id_pelicula, fecha, hora_inicio, precio) VALUES (?, ?, ?, ?)";
             $stmt = $conn->prepare($query);
             $success = $stmt->execute([$id_pelicula, $fecha, $hora, $precio]);
 
             if ($success && $id_empleado) {
-                $bitacora_query = "INSERT INTO BitacoraEmpleados (id_empleado, accion, detalles) VALUES (?, 'Agregar Funcion', ?)";
+                $bitacora_query = "INSERT INTO bitacoraempleados (id_empleado, accion, detalles) VALUES (?, 'Agregar Funcion', ?)";
                 $bitacora_stmt = $conn->prepare($bitacora_query);
                 $detalles = "ID Pelicula: $id_pelicula, Fecha: $fecha, Hora: $hora";
                 $bitacora_stmt->execute([$id_empleado, $detalles]);

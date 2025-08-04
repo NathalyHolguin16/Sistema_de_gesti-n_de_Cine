@@ -1,3 +1,68 @@
+// Verificación de autenticación al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    const usuario = JSON.parse(sessionStorage.getItem('usuario') || 'null');
+    const tipoUsuario = sessionStorage.getItem('tipoUsuario');
+    
+    // Debug: Mostrar información del usuario
+    console.log('Usuario:', usuario);
+    console.log('Tipo:', tipoUsuario);
+    console.log('Cargo:', usuario ? usuario.cargo : 'No hay usuario');
+    console.log('Rol:', usuario ? usuario.rol : 'No hay usuario');
+    
+    if (!usuario || tipoUsuario !== 'empleado') {
+        alert('Debes iniciar sesión como empleado para acceder a esta página.');
+        window.location.href = 'login_unificado.html';
+        return;
+    }
+    
+    // Solo administradores pueden gestionar películas - Usar el campo 'rol'
+    console.log('Verificando rol:', usuario.rol);
+    console.log('Rol type:', typeof usuario.rol);
+    
+    if (usuario.rol !== 'Administrador') {
+        alert(`Tu rol es: "${usuario.rol}". Solo los administradores pueden gestionar películas.`);
+        window.location.href = 'administracion.html';
+        return;
+    }
+    
+    // Configurar logout
+    const logoutBtn = document.getElementById('logoutAdminBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                // Enviar solicitud de logout al servidor para registrar en bitácora
+                const response = await fetch('../php/login_unificado.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'logout',
+                        usuario: usuario,
+                        tipo: tipoUsuario
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    console.log('Logout registrado en bitácora');
+                }
+            } catch (error) {
+                console.error('Error en logout:', error);
+            } finally {
+                sessionStorage.removeItem('usuario');
+                sessionStorage.removeItem('tipoUsuario');
+                sessionStorage.removeItem('clientInfo');
+                alert('Has cerrado sesión.');
+                window.location.href = 'login_unificado.html';
+            }
+        });
+    }
+    
+    // Si la autenticación es correcta, cargar las películas
+    cargarPeliculas();
+});
+
 let currentPagePeliculas = 1;
 const limitPeliculas = 8;
 let paginationInfo = {};
@@ -115,11 +180,26 @@ function editarPelicula(id) {
 
 // Función para eliminar película
 async function eliminarPelicula(id) {
+  // Verificar autenticación con el sistema unificado
+  const usuario = JSON.parse(sessionStorage.getItem('usuario'));
+  const tipoUsuario = sessionStorage.getItem('tipoUsuario');
+  
+  if (!usuario || tipoUsuario !== 'empleado') {
+    alert('Debes iniciar sesión como empleado para realizar esta acción.');
+    return;
+  }
+  
+  // Verificar rol de administrador
+  if (usuario.rol !== 'Administrador') {
+    alert('Solo los administradores pueden eliminar películas.');
+    return;
+  }
+  
   if (!confirm('¿Seguro que deseas eliminar esta película?')) return;
   await fetch('../php/peliculas.php', {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: `id_pelicula=${id}`
+    body: `id_pelicula=${id}&id_empleado=${usuario.id}`
   });
   cargarPeliculas();
 }
@@ -138,13 +218,22 @@ document.getElementById('formAgregarPelicula').onsubmit = async function(e) {
   const form = this;
   const formData = new FormData(form);
 
-  // Ensure id_empleado is sent in movie actions
-  const empleado = JSON.parse(localStorage.getItem('empleado'));
-  if (!empleado || !empleado.id) {
+  // Verificar autenticación con el sistema unificado
+  const usuario = JSON.parse(sessionStorage.getItem('usuario'));
+  const tipoUsuario = sessionStorage.getItem('tipoUsuario');
+  
+  if (!usuario || tipoUsuario !== 'empleado') {
     alert('Debes iniciar sesión como empleado para realizar esta acción.');
     return;
   }
-  formData.append('id_empleado', empleado.id);
+  
+  // Verificar rol de administrador
+  if (usuario.rol !== 'Administrador') {
+    alert('Solo los administradores pueden gestionar películas.');
+    return;
+  }
+  
+  formData.append('id_empleado', usuario.id);
 
   if (document.getElementById('id_pelicula').value) {
     formData.append('id_pelicula', document.getElementById('id_pelicula').value);
@@ -191,8 +280,3 @@ function irAPagina(page) {
     cargarPeliculas(page);
   }
 }
-
-// Cargar películas al iniciar
-document.addEventListener('DOMContentLoaded', () => {
-  cargarPeliculas(currentPagePeliculas);
-});

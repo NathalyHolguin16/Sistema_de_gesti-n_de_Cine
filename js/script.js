@@ -171,15 +171,45 @@ function verificarLogin() {
 }
 
 // Cerrar sesión
-document.getElementById('logoutBtn').addEventListener('click', () => {
-  // Limpiar la nueva estructura de datos del sistema unificado
-  sessionStorage.removeItem('usuario');
-  sessionStorage.removeItem('tipoUsuario');
-  sessionStorage.removeItem('clientInfo');
-  
-  verificarLogin();
-  alert('Has cerrado sesión.');
-  window.location.href = 'index.html'; // Redirige al inicio
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  try {
+    // Obtener datos de la sesión antes de limpiarla
+    const usuario = JSON.parse(sessionStorage.getItem('usuario') || 'null');
+    const tipoUsuario = sessionStorage.getItem('tipoUsuario');
+    
+    if (usuario && tipoUsuario) {
+      // Enviar solicitud de logout al servidor para registrar en bitácora
+      const response = await fetch('../php/login_unificado.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          action: 'logout',
+          usuario: usuario,
+          tipo: tipoUsuario
+        })
+      });
+      
+      const result = await response.json();
+      if (result.success) {
+        console.log('Logout registrado en bitácora');
+      } else {
+        console.warn('Error al registrar logout:', result.error);
+      }
+    }
+  } catch (error) {
+    console.error('Error en logout:', error);
+  } finally {
+    // Limpiar la nueva estructura de datos del sistema unificado
+    sessionStorage.removeItem('usuario');
+    sessionStorage.removeItem('tipoUsuario');
+    sessionStorage.removeItem('clientInfo');
+    
+    verificarLogin();
+    alert('Has cerrado sesión.');
+    window.location.href = 'index.html'; // Redirige al inicio
+  }
 });
 
 // Registro de cliente
@@ -204,29 +234,6 @@ document.getElementById('formRegistroCliente').addEventListener('submit', async 
     showSection('cartelera');
   } else {
     alert(result.error || 'Error al registrarse.');
-  }
-});
-
-// Login de cliente
-document.getElementById('formLoginCliente').addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const correo = document.getElementById('correoLogin').value;
-
-  const res = await fetch('../php/login_cliente.php', {
-    method: 'POST',
-    body: JSON.stringify({ correo }),
-    headers: { 'Content-Type': 'application/json' }
-  });
-
-  const result = await res.json();
-  if (result.success) {
-    alert('¡Login exitoso!');
-    localStorage.setItem('cliente', JSON.stringify({ nombre: result.nombre, correo }));
-    verificarLogin();
-    showSection('cartelera');
-  } else {
-    alert(result.error || 'Error al iniciar sesión.');
   }
 });
 

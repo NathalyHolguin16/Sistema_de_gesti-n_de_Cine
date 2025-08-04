@@ -44,8 +44,8 @@ try {
 
         // Contar total de registros
         $countQuery = "SELECT COUNT(*) as total
-                       FROM BitacoraClientes bc
-                       LEFT JOIN Clientes c ON bc.id_cliente = c.id_cliente
+                       FROM bitacoraclientes bc
+                       LEFT JOIN clientes c ON bc.id_cliente = c.id_cliente
                        $whereClause";
         
         $countStmt = $conn->prepare($countQuery);
@@ -58,14 +58,23 @@ try {
         $hasNextPage = $page < $totalPages;
         $hasPrevPage = $page > 1;
 
-        // Obtener registros de bitácora con información del cliente
+        // Obtener registros de bitácora con información del cliente y detalles de reserva
         $query = "SELECT bc.*, 
                          c.nombre as cliente_nombre,
                          c.correo as cliente_correo,
                          bc.ip_address,
-                         bc.user_agent
-                  FROM BitacoraClientes bc
-                  LEFT JOIN Clientes c ON bc.id_cliente = c.id_cliente
+                         bc.user_agent,
+                         bc.id_funcion,
+                         bc.id_pelicula,
+                         bc.nombre_pelicula,
+                         bc.fecha_funcion,
+                         bc.hora_funcion,
+                         bc.sala,
+                         bc.asientos_reservados,
+                         bc.cantidad_asientos,
+                         bc.total_pagado
+                  FROM bitacoraclientes bc
+                  LEFT JOIN clientes c ON bc.id_cliente = c.id_cliente
                   $whereClause
                   ORDER BY bc.fecha_hora DESC
                   LIMIT ? OFFSET ?";

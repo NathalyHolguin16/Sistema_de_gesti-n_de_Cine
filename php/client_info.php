@@ -107,21 +107,49 @@ function obtenerInfoCliente() {
 /**
  * Registra una acción en BitacoraClientes con información del cliente
  */
-function registrarBitacoraCliente($conn, $id_cliente, $accion, $detalles = '') {
+function registrarBitacoraCliente($conn, $id_cliente, $accion, $detalles = '', $datosReserva = null) {
     try {
         $info = obtenerInfoCliente();
         
-        $query = "INSERT INTO BitacoraClientes (id_cliente, accion, detalles, fecha_hora, ip_address, user_agent) 
-                  VALUES (?, ?, ?, NOW(), ?, ?)";
-        
-        $stmt = $conn->prepare($query);
-        return $stmt->execute([
-            $id_cliente,
-            $accion,
-            $detalles,
-            $info['ip'],
-            $info['navegador_limpio'] // Usar navegador limpio en lugar del user_agent completo
-        ]);
+        // Si es una reserva y se proporcionan datos específicos
+        if ($datosReserva && is_array($datosReserva)) {
+            $query = "INSERT INTO bitacoraclientes (
+                        id_cliente, accion, detalles, fecha_hora, ip_address, user_agent,
+                        id_funcion, id_pelicula, nombre_pelicula, fecha_funcion, hora_funcion,
+                        sala, asientos_reservados, cantidad_asientos, total_pagado
+                      ) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            
+            $stmt = $conn->prepare($query);
+            return $stmt->execute([
+                $id_cliente,
+                $accion,
+                $detalles,
+                $info['ip'],
+                $info['navegador_limpio'],
+                $datosReserva['id_funcion'] ?? null,
+                $datosReserva['id_pelicula'] ?? null,
+                $datosReserva['nombre_pelicula'] ?? null,
+                $datosReserva['fecha_funcion'] ?? null,
+                $datosReserva['hora_funcion'] ?? null,
+                $datosReserva['sala'] ?? null,
+                $datosReserva['asientos_reservados'] ?? null,
+                $datosReserva['cantidad_asientos'] ?? null,
+                $datosReserva['total_pagado'] ?? null
+            ]);
+        } else {
+            // Registro normal sin datos de reserva
+            $query = "INSERT INTO bitacoraclientes (id_cliente, accion, detalles, fecha_hora, ip_address, user_agent) 
+                      VALUES (?, ?, ?, NOW(), ?, ?)";
+            
+            $stmt = $conn->prepare($query);
+            return $stmt->execute([
+                $id_cliente,
+                $accion,
+                $detalles,
+                $info['ip'],
+                $info['navegador_limpio']
+            ]);
+        }
     } catch (PDOException $e) {
         error_log("Error en bitácora de cliente: " . $e->getMessage());
         return false;
@@ -135,7 +163,7 @@ function registrarBitacoraEmpleado($conn, $id_empleado, $accion, $detalles = '')
     try {
         $info = obtenerInfoCliente();
         
-        $query = "INSERT INTO BitacoraEmpleados (id_empleado, accion, detalles, fecha_hora, ip_address, user_agent) 
+        $query = "INSERT INTO bitacoraempleados (id_empleado, accion, detalles, fecha_hora, ip_address, user_agent) 
                   VALUES (?, ?, ?, NOW(), ?, ?)";
         
         $stmt = $conn->prepare($query);

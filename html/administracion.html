@@ -19,32 +19,174 @@
 </header>
 
 <main>
+    <!-- Dashboard Principal -->
     <section id="adminContent">
-        <h2>Bienvenido a la Administración</h2>
-        <p>Selecciona una opción en el menú para comenzar.</p>
+        <div class="admin-header">
+            <h2>Panel de Administración</h2>
+            <div class="admin-info">
+                <span>Bienvenido, <span id="adminName">Administrador</span></span>
+                <span class="last-login">Último acceso: <span id="lastLogin">Hoy</span></span>
+            </div>
+        </div>
+
+        <!-- Widgets de Estadísticas -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🎬</div>
+                <div class="stat-content">
+                    <h3>Películas Activas</h3>
+                    <span class="stat-number" id="totalPeliculas">-</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">🎫</div>
+                <div class="stat-content">
+                    <h3>Reservas Hoy</h3>
+                    <span class="stat-number" id="reservasHoy">-</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-content">
+                    <h3>Clientes Registrados</h3>
+                    <span class="stat-number" id="totalClientes">-</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-content">
+                    <h3>Ingresos del Mes</h3>
+                    <span class="stat-number" id="ingresosMes">$-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accesos Rápidos -->
+        <div class="quick-actions">
+            <h3>Accesos Rápidos</h3>
+            <div class="action-buttons">
+                <button class="action-btn" onclick="window.location.href='test_peliculas.html'">
+                    <span class="btn-icon">🎬</span>
+                    Gestionar Películas
+                </button>
+                <button class="action-btn" onclick="window.location.href='administracion_empleados.html'" id="btnEmpleados">
+                    <span class="btn-icon">👥</span>
+                    Gestionar Empleados
+                </button>
+                <button class="action-btn" onclick="mostrarReportes()">
+                    <span class="btn-icon">📊</span>
+                    Ver Reportes
+                </button>
+                <button class="action-btn" onclick="mostrarBitacoraClientes()">
+                    <span class="btn-icon">📋</span>
+                    Bitácora de Clientes
+                </button>
+                <button class="action-btn" onclick="mostrarBitacoraEmpleados()">
+                    <span class="btn-icon">📝</span>
+                    Bitácora de Empleados
+                </button>
+            </div>
+        </div>
     </section>
-    <section id="paginacionPeliculas">
-        <button id="prevPagePeliculas">Anterior</button>
-        <span id="currentPagePeliculas">1</span>
-        <button id="nextPagePeliculas">Siguiente</button>
+
+    <!-- Sección de Reportes -->
+    <section id="reporteReservas" style="display:none;">
+        <div class="section-header">
+            <h2>📊 Reporte de Reservas</h2>
+            <button class="btn-back" onclick="mostrarDashboard()">← Volver al Dashboard</button>
+        </div>
+        
+        <div class="table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Película</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Asientos</th>
+                        <th>Total Pagado</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaReservas">
+                    <!-- Los datos se llenarán dinámicamente -->
+                </tbody>
+            </table>
+        </div>
     </section>
-    <section id="reporteReservas">
-        <h2>Reporte de Reservas</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Cliente</th>
-                    <th>Película</th>
-                    <th>Fecha</th>
-                    <th>Hora</th>
-                    <th>Asientos</th>
-                    <th>Total Pagado</th>
-                </tr>
-            </thead>
-            <tbody id="tablaReservas">
-                <!-- Los datos se llenarán dinámicamente -->
-            </tbody>
-        </table>
+
+    <!-- Sección de Bitácora de Clientes -->
+    <section id="bitacoraClientesSection" style="display:none;">
+        <div class="section-header">
+            <h2>📋 Bitácora de Clientes</h2>
+            <button class="btn-back" onclick="mostrarDashboard()">← Volver al Dashboard</button>
+        </div>
+        
+        <div class="bitacora-filters">
+            <input type="date" id="filtroBitacoraClientesFecha" />
+            <input type="text" id="filtroBitacoraClientesNombre" placeholder="Buscar por nombre de cliente" />
+            <button onclick="cargarBitacoraClientes()">Filtrar</button>
+        </div>
+        
+        <div class="table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Fecha/Hora</th>
+                        <th>Cliente</th>
+                        <th>Acción</th>
+                        <th>Película</th>
+                        <th>Función</th>
+                        <th>Asientos</th>
+                        <th>Total</th>
+                        <th>IP</th>
+                        <th>Detalles</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaBitacoraClientes">
+                    <!-- Los datos se llenarán dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Sección de Bitácora de Empleados -->
+    <section id="bitacoraEmpleadosSection" style="display:none;">
+        <div class="section-header">
+            <h2>📝 Bitácora de Empleados</h2>
+            <button class="btn-back" onclick="mostrarDashboard()">← Volver al Dashboard</button>
+        </div>
+        
+        <div class="bitacora-filters">
+            <input type="date" id="filtroBitacoraEmpleadosFecha" />
+            <input type="text" id="filtroBitacoraEmpleadosNombre" placeholder="Buscar por nombre de empleado" />
+            <button onclick="cargarBitacoraEmpleados()">Filtrar</button>
+        </div>
+        
+        <div class="table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Fecha/Hora</th>
+                        <th>Empleado</th>
+                        <th>Cargo</th>
+                        <th>Acción</th>
+                        <th>IP</th>
+                        <th>Detalles</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaBitacoraEmpleados">
+                    <!-- Los datos se llenarán dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+                </tbody>
+            </table>
+        </div>
     </section>
 </main>
 

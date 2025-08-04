@@ -6,33 +6,104 @@ require_once("client_info.php");
 // Desactivar advertencias
 error_reporting(0);
 
-$data = json_decode(file_get_contents("php://input"), true);
-
-// Validar que las claves esperadas estén presentes
-if (!isset($data['credencial'], $data['contrasena'])) {
-    echo json_encode(['success' => false, 'error' => 'Datos incompletos.']);
-    exit;
-}
-
-$credencial = trim($data['credencial']); // Puede ser correo o usuario
-$contrasena = $data['contrasena'];
-
-// Obtener información del cliente (IP y User-Agent)
-$clientInfo = obtenerInfoCliente();
-
-try {
-    // Validar IP si está configurado
-    if (!validarIP($clientInfo['ip'])) {
-        error_log("Intento de login bloqueado desde IP: " . $clientInfo['ip']);
-        echo json_encode(['success' => false, 'error' => 'Acceso denegado.']);
+// Verificar si es una acción de logout
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = json_decode(file_get_contents("php://input"), true);
+    
+    // Verificar si es una acción de logout
+    if (isset($data['action']) && $data['action'] === 'logout') {
+        manejarLogout($data);
         exit;
     }
+    
+    // Si no es logout, continuar con el login normal
+    manejarLogin($data);
+} else {
+    echo json_encode(['success' => false, 'error' => 'Método no permitido.']);
+}
+
+function manejarLogout($data) {
+    // Obtener información del cliente
+    $clientInfo = obtenerInfoCliente();
+    
+    try {
+        // Obtener información del usuario de la sesión
+        if (!isset($data['usuario']) || !isset($data['tipo'])) {
+            echo json_encode(['success' => false, 'error' => 'Información de sesión incompleta.']);
+            return;
+        }
+        
+        $usuario = $data['usuario'];
+        $tipoUsuario = $data['tipo'];
+        
+        // Usar la conexión global
+        global $conn;
+        if (!$conn) {
+            echo json_encode(['success' => false, 'error' => 'Error de conexión.']);
+            return;
+        }
+        
+        // Registrar en la bitácora según el tipo de usuario
+        if ($tipoUsuario === 'cliente') {
+            $detalles = sprintf(
+                'Cierre de sesión exitoso. IP: %s, Navegador: %s',
+                $clientInfo['ip'],
+                $clientInfo['user_agent']
+            );
+            registrarBitacoraCliente($conn, $usuario['id'], 'Cierre de sesión', $detalles);
+        } else if ($tipoUsuario === 'empleado') {
+            $detalles = sprintf(
+                'Cierre de sesión exitoso. IP: %s, Navegador: %s',
+                $clientInfo['ip'],
+                $clientInfo['user_agent']
+            );
+            registrarBitacoraEmpleado($conn, $usuario['id'], 'Cierre de sesión', $detalles);
+        }
+        
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Sesión cerrada exitosamente.'
+        ]);
+        
+    } catch (Exception $e) {
+        error_log("Error en logout: " . $e->getMessage());
+        echo json_encode(['success' => false, 'error' => 'Error interno del servidor.']);
+    }
+}
+
+function manejarLogin($data) {
+    // Validar que las claves esperadas estén presentes
+    if (!isset($data['credencial'], $data['contrasena'])) {
+        echo json_encode(['success' => false, 'error' => 'Datos incompletos.']);
+        return;
+    }
+
+    $credencial = trim($data['credencial']); // Puede ser correo o usuario
+    $contrasena = $data['contrasena'];
+
+    // Obtener información del cliente (IP y User-Agent)
+    $clientInfo = obtenerInfoCliente();
+    
+    // Usar la conexión global
+    global $conn;
+    if (!$conn) {
+        echo json_encode(['success' => false, 'error' => 'Error de conexión.']);
+        return;
+    }
+
+    try {
+        // Validar IP si está configurado
+        if (!validarIP($clientInfo['ip'])) {
+            error_log("Intento de login bloqueado desde IP: " . $clientInfo['ip']);
+            echo json_encode(['success' => false, 'error' => 'Acceso denegado.']);
+            return;
+        }
 
     $usuario = null;
     $tipoUsuario = null;
 
-    // Paso 1: Intentar buscar en Clientes por correo
-    $query_cliente = "SELECT *, 'cliente' as tipo FROM Clientes WHERE correo = ?";
+    // Paso 1: Intentar buscar en clientes por correo
+    $query_cliente = "SELECT *, 'cliente' as tipo FROM clientes WHERE correo = ?";
     $stmt_cliente = $conn->prepare($query_cliente);
     $stmt_cliente->execute([$credencial]);
     $resultado_cliente = $stmt_cliente->fetch();
@@ -41,9 +112,9 @@ try {
         $usuario = $resultado_cliente;
         $tipoUsuario = 'cliente';
     } else {
-        // Paso 2: Si no se encontró en clientes, buscar en Empleados
+        // Paso 2: Si no se encontró en clientes, buscar en empleados
         // Buscar por usuario o por correo (si tienen correo configurado)
-        $query_empleado = "SELECT *, 'empleado' as tipo FROM Empleados WHERE usuario = ? OR correo = ?";
+        $query_empleado = "SELECT *, 'empleado' as tipo FROM empleados WHERE usuario = ? OR correo = ?";
         $stmt_empleado = $conn->prepare($query_empleado);
         $stmt_empleado->execute([$credencial, $credencial]);
         $resultado_empleado = $stmt_empleado->fetch();
@@ -61,13 +132,13 @@ try {
         $stmt_verify->execute([$contrasena, $usuario['contrasena']]);
         $verify_result = $stmt_verify->fetch();
         
+        // Preparar información del User-Agent (necesario para todas las situaciones)
+        $userAgentInfo = parsearUserAgent($clientInfo['user_agent']);
+        
         if ($verify_result && $verify_result['password_match']) {
             // Detectar actividad sospechosa
             $userId = $tipoUsuario === 'cliente' ? $usuario['id_cliente'] : $usuario['id_empleado'];
             $actividadSospechosa = detectarActividadSospechosa($conn, $userId, $tipoUsuario);
-            
-            // Preparar información del User-Agent
-            $userAgentInfo = parsearUserAgent($clientInfo['user_agent']);
             
             // Preparar datos de respuesta según el tipo de usuario
             if ($tipoUsuario === 'cliente') {
@@ -171,4 +242,5 @@ try {
     error_log("Error en login unificado: " . $e->getMessage());
     echo json_encode(['success' => false, 'error' => 'Error interno del servidor.']);
 }
+} // Cierre de función manejarLogin
 ?>

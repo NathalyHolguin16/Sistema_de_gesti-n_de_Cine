@@ -3,17 +3,23 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 header('Content-Type: application/json');
 require_once("conexion.php");
+require_once("client_info.php");
 $resourcesDir = realpath(__DIR__ . '/../resources/');
 
 // Obtener película por ID
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id_pelicula'])) {
     $id_pelicula = $_GET['id_pelicula'];
     try {
-        $query = "SELECT * FROM Peliculas WHERE id_pelicula = ?";
+        $query = "SELECT * FROM peliculas WHERE id_pelicula = ?";
         $stmt = $conn->prepare($query);
         $stmt->execute([$id_pelicula]);
         $pelicula = $stmt->fetch();
-        echo json_encode($pelicula);
+        
+        if ($pelicula) {
+            echo json_encode(['success' => true, 'data' => $pelicula]);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Película no encontrada']);
+        }
     } catch (PDOException $e) {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
@@ -28,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     try {
         // Contar total de películas activas
-        $countQuery = "SELECT COUNT(*) as total FROM Peliculas WHERE estado IS NULL OR estado = true";
+        $countQuery = "SELECT COUNT(*) as total FROM peliculas WHERE estado IS NULL OR estado = true";
         $countStmt = $conn->prepare($countQuery);
         $countStmt->execute();
         $totalResult = $countStmt->fetch();
@@ -40,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $hasPrevPage = $page > 1;
 
         // Obtener películas de la página actual
-        $query = "SELECT * FROM Peliculas WHERE estado IS NULL OR estado = true ORDER BY id_pelicula DESC LIMIT ? OFFSET ?";
+        $query = "SELECT * FROM peliculas WHERE estado IS NULL OR estado = true ORDER BY id_pelicula DESC LIMIT ? OFFSET ?";
         $stmt = $conn->prepare($query);
         $stmt->execute([$limit, $offset]);
         $result = $stmt->fetchAll();
@@ -97,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // Add bitácora logging for movie actions
         if ($modo === 'agregar') {
-            $query = "INSERT INTO Peliculas (titulo, duracion_minutos, clasificacion, genero, sinopsis, estado, imagen)
+            $query = "INSERT INTO peliculas (titulo, duracion_minutos, clasificacion, genero, sinopsis, estado, imagen)
                       VALUES (?, ?, ?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($query);
             $success = $stmt->execute([$titulo, $duracion, $clasificacion, $genero, $sinopsis, $estado, $imagen]);
@@ -106,9 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $id_empleado = $_POST['id_empleado'];
                 $accion = 'Agregar Película';
                 $detalles = "Título: $titulo, Duración: $duracion, Clasificación: $clasificacion";
-                $bitacora_query = "INSERT INTO BitacoraEmpleados (id_empleado, accion, detalles) VALUES (?, ?, ?)";
-                $bitacora_stmt = $conn->prepare($bitacora_query);
-                $bitacora_stmt->execute([$id_empleado, $accion, $detalles]);
+                registrarBitacoraEmpleado($conn, $id_empleado, $accion, $detalles);
             }
 
             echo json_encode(['success' => $success]);
@@ -117,11 +121,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = $_POST['id_pelicula'] ?? null;
             if ($id) {
                 if ($imagen) {
-                    $query = "UPDATE Peliculas SET titulo=?, duracion_minutos=?, clasificacion=?, genero=?, sinopsis=?, estado=?, imagen=? WHERE id_pelicula=?";
+                    $query = "UPDATE peliculas SET titulo=?, duracion_minutos=?, clasificacion=?, genero=?, sinopsis=?, estado=?, imagen=? WHERE id_pelicula=?";
                     $stmt = $conn->prepare($query);
                     $success = $stmt->execute([$titulo, $duracion, $clasificacion, $genero, $sinopsis, $estado, $imagen, $id]);
                 } else {
-                    $query = "UPDATE Peliculas SET titulo=?, duracion_minutos=?, clasificacion=?, genero=?, sinopsis=?, estado=? WHERE id_pelicula=?";
+                    $query = "UPDATE peliculas SET titulo=?, duracion_minutos=?, clasificacion=?, genero=?, sinopsis=?, estado=? WHERE id_pelicula=?";
                     $stmt = $conn->prepare($query);
                     $success = $stmt->execute([$titulo, $duracion, $clasificacion, $genero, $sinopsis, $estado, $id]);
                 }
@@ -130,9 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $id_empleado = $_POST['id_empleado'];
                     $accion = 'Editar Película';
                     $detalles = "ID: $id, Título: $titulo, Duración: $duracion";
-                    $bitacora_query = "INSERT INTO BitacoraEmpleados (id_empleado, accion, detalles) VALUES (?, ?, ?)";
-                    $bitacora_stmt = $conn->prepare($bitacora_query);
-                    $bitacora_stmt->execute([$id_empleado, $accion, $detalles]);
+                    registrarBitacoraEmpleado($conn, $id_empleado, $accion, $detalles);
                 }
 
                 echo json_encode(['success' => $success]);
@@ -150,11 +152,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
     parse_str(file_get_contents("php://input"), $data);
     $id = $data['id_pelicula'] ?? null;
+    $id_empleado = $data['id_empleado'] ?? null;
+    
     if ($id) {
         try {
-            $query = "DELETE FROM Peliculas WHERE id_pelicula=?";
+            // Obtener información de la película antes de eliminarla
+            $query_info = "SELECT titulo FROM peliculas WHERE id_pelicula=?";
+            $stmt_info = $conn->prepare($query_info);
+            $stmt_info->execute([$id]);
+            $pelicula = $stmt_info->fetch();
+            
+            $query = "DELETE FROM peliculas WHERE id_pelicula=?";
             $stmt = $conn->prepare($query);
             $success = $stmt->execute([$id]);
+            
+            // Registrar en bitácora si se proporcionó id_empleado
+            if ($success && $id_empleado && $pelicula) {
+                $accion = 'Eliminar Película';
+                $detalles = "ID: $id, Título: " . $pelicula['titulo'];
+                registrarBitacoraEmpleado($conn, $id_empleado, $accion, $detalles);
+            }
+            
             echo json_encode(['success' => $success]);
         } catch (PDOException $e) {
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
