@@ -2,26 +2,66 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Registro de Cliente</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Cliente - Cine Fantástico</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="../css/registro_cliente.css">
 </head>
 <body>
-    <h2 id="registroClienteTitle">Registro de Cliente</h2>
-    <form id="formRegistroCliente">
-        <label for="nombre">Nombre:</label>
-        <input type="text" id="nombre" name="nombre" required>
-        
-        <label for="correo">Correo:</label>
-        <input type="email" id="correo" name="correo" required>
-        
-        <label for="telefono">Teléfono:</label>
-        <input type="text" id="telefono" name="telefono">
-        
-        <label for="contrasena">Contraseña:</label>
-        <input type="password" id="contrasena" name="contrasena" required>
-        
-        <button type="submit">Registrarse</button>
-    </form>
+    <div class="container">
+        <div class="header">
+            <img src="../resources/logoCF.png" alt="Logo Cine Fantástico" class="logo">
+            <h1 class="site-title">Cine Fantástico</h1>
+        </div>
+        <div class="form-container">
+            <h2 id="registroClienteTitle">
+                <i class="fas fa-user-plus"></i>
+                Registro de Cliente
+            </h2>
+            <form id="formRegistroCliente">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <div class="input-field">
+                        <label for="nombre">Nombre Completo</label>
+                        <input type="text" id="nombre" name="nombre" required placeholder="Ingresa tu nombre">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <div class="input-field">
+                        <label for="correo">Correo Electrónico</label>
+                        <input type="email" id="correo" name="correo" required placeholder="ejemplo@correo.com">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <i class="fas fa-phone"></i>
+                    <div class="input-field">
+                        <label for="telefono">Teléfono</label>
+                        <input type="tel" id="telefono" name="telefono" placeholder="Ingresa tu teléfono">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <div class="input-field">
+                        <label for="contrasena">Contraseña</label>
+                        <input type="password" id="contrasena" name="contrasena" required placeholder="Ingresa tu contraseña">
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-check-circle"></i>
+                    Crear Cuenta
+                </button>
+
+                <div class="login-link">
+                    ¿Ya tienes una cuenta? <a href="login_unificado.html">Iniciar Sesión</a>
+                </div>
+            </form>
+        </div>
+    </div>
     <script src="../js/registro_cliente.js"></script>
 </body>
 </html>

@@ -1,76 +1,244 @@
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+}
+
 body {
-  background: #181818;
+    background: url('../resources/fondo_cine_registro.jpg') no-repeat center center fixed;
+    background-size: cover;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1;
+}
+
+.container {
+    width: 100%;
+    max-width: 450px;
+    animation: fadeIn 0.8s ease-out;
+    position: relative;
+    z-index: 2;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    animation: fadeIn 1s ease-out;
+}
+
+.logo {
+    width: 100px;
+    height: auto;
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.3));
+}
+
+.site-title {
+    color: #ffd700;
+    font-size: 2.3rem;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    letter-spacing: 1.5px;
+    margin: 0;
+    text-align: center;
+    line-height: 1.2;
+    max-width: 100%;
+    padding: 0 10px;
+}
+
+.form-container {
+    background: rgba(35, 35, 35, 0.97);
+    padding: 2.5rem 2rem;
+    border-radius: 4px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+    border: none;
+    backdrop-filter: blur(10px);
+    max-width: 400px;
+    width: 100%;
 }
 
 #registroClienteTitle {
-  color: #ffd700;
-  text-align: center;
-  margin-top: 2.5rem;
-  margin-bottom: 1.5rem;
-  font-size: 2.1rem;
-  letter-spacing: 1px;
-  text-shadow: 0 2px 12px #000a;
-  font-weight: bold;
+    color: #ffd700;
+    text-align: left;
+    font-size: 1.75rem;
+    margin-bottom: 2rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
+#registroClienteTitle i {
+    font-size: 1.5rem;
+    opacity: 0.9;
+}
 
 #formRegistroCliente {
-  background: #232323;
-  padding: 2.2rem 2.5rem;
-  border-radius: 14px;
-  box-shadow: 0 8px 32px #0008;
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-  min-width: 320px;
-  max-width: 400px;
-  margin: 0 auto 1.2rem auto;
-  border: 2px solid #ffd70055;
-  animation: fadeInUp 0.7s;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    animation: slideUp 0.6s ease-out;
 }
 
-#formRegistroCliente label {
-  font-weight: 600;
-  color: #ffd700;
-  margin-bottom: 0.3rem;
-  letter-spacing: 0.5px;
+.input-group {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    position: relative;
+    margin-bottom: 24px;
 }
 
-#formRegistroCliente input[type="email"],
-#formRegistroCliente input[type="text"],
-#formRegistroCliente input[type="password"],
-#formRegistroCliente input[type="number"] {
-  padding: 0.7rem;
-  border: 1.5px solid #bba215;
-  border-radius: 7px;
-  font-size: 1rem;
-  outline: none;
-  background: #181818;
-  color: #fff;
-  transition: border-color 0.2s, background 0.2s;
+.input-group i {
+    color: #ffd700;
+    font-size: 1.2rem;
+    position: absolute;
+    left: 0;
+    top: 32px;
+    opacity: 0.8;
 }
 
-#formRegistroCliente input:focus {
-  border-color: #ffd700;
-  background: #232323;
+.input-field {
+    flex: 1;
+    margin-left: 35px;
 }
 
-#formRegistroCliente button[type="submit"] {
-  background: linear-gradient(90deg, #ffd700 0%, #e50914 100%);
-  color: #232323;
-  border: none;
-  padding: 0.85rem;
-  border-radius: 7px;
-  font-size: 1.08rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-  margin-top: 0.5rem;
-  letter-spacing: 0.5px;
-  box-shadow: 0 2px 8px #0003;
+.input-field label {
+    display: block;
+    color: #ffd700;
+    font-size: 0.875rem;
+    font-weight: 400;
+    margin-bottom: 4px;
+    transition: all 0.2s ease;
 }
 
-#formRegistroCliente button[type="submit"]:hover {
-  background: linear-gradient(90deg, #e50914 0%, #ffd700 100%);
-  color: #fff;
+.input-field input {
+    width: 100%;
+    padding: 8px 0;
+    border: none;
+    border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+    background: transparent;
+    color: #fff;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.input-field input:focus {
+    border-bottom-color: #ffd700;
+    outline: none;
+}
+
+.input-field input:focus + label {
+    color: #ffd700;
+    transform: translateY(-5px);
+    font-size: 0.75rem;
+}
+
+.input-field input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.9rem;
+}
+
+/* Estilo Microsoft para cuando el input tiene contenido */
+.input-field input:not(:placeholder-shown) + label {
+    transform: translateY(-5px);
+    font-size: 0.75rem;
+}
+
+.submit-btn {
+    background: linear-gradient(90deg, #ffd700 0%, #e50914 100%);
+    color: #fff;
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 1rem;
+}
+
+.submit-btn:hover {
+    background: linear-gradient(90deg, #e50914 0%, #ffd700 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(229, 9, 20, 0.2);
+}
+
+.submit-btn i {
+    font-size: 1.2rem;
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: #fff;
+    font-size: 0.9rem;
+}
+
+.login-link a {
+    color: #ffd700;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.login-link a:hover {
+    color: #e50914;
+}
+
+@media (max-width: 480px) {
+    .form-container {
+        padding: 1.5rem;
+    }
+
+    #registroClienteTitle {
+        font-size: 1.8rem;
+    }
+
+    .input-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .input-group i {
+        margin-top: 0;
+        margin-bottom: 8px;
+    }
 }
