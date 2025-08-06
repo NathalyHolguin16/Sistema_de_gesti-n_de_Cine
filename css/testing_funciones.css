@@ -27,27 +27,30 @@ header h1 .dorado { color: #ffd700; font-weight: bold; }
 
 #adminNav {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  gap: 2rem;
+  gap: 1rem;
   margin: 1rem 0;
   padding: 0 2rem;
+  flex-wrap: wrap;
 }
-#adminNav .nav-links {
-  display: flex;
-  gap: 2rem;
-}
+
 #adminNav a {
-  color: #ffd700;
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 1.1rem;
-  padding: 0.4rem 1.1rem;
-  border-radius: 6px;
-  transition: background 0.2s, color 0.2s;
-}
-#adminNav a:hover {
   background: #ffd700;
+  color: #000;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+#adminNav a:hover {
+  background: #e5c300;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   color: #232323;
 }
 #logoutAdminBtn {
