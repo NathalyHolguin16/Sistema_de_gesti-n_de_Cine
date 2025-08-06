@@ -298,13 +298,13 @@ INSERT INTO BitacoraEmpleados (id_bitacora, id_empleado, accion, detalles, fecha
 -- Inserción en la tabla Comidas
 
 INSERT INTO comida (nombre_comida, descripcion, precio, tipo, imagen) VALUES
-('Combo grande', 'Incluye una funda de palomitas grandes', 15.00, 'combo', 'comida_1_000.png'),
-('Gaseosa 500ml', 'Bebida fría del sabor que desee, en botella', 2.50, 'Bebida', 'comida_2_000.png'),
-('Palomitas medianas', 'Porción de palomitas de maíz con mantequilla', 5.50, 'snack', 'comida_3_000.png'),
-('Chocolate mini', 'Barra de chocolate negro, ideal como acompañamiento', 3.00, 'Dulce', 'comida_4_000.png');
+('Combo grande', 'Incluye una funda de palomitas grandes, 2 bebidas medianas y un dulce pequeño', 15.00, 'combo', 'comida_1_000.png'),
+('Palomitas medianas', 'Bebida fría del sabor que desee, en botella de 500 ml', 2.50, 'Bebida', 'comida_2_000.png'),
+('Gaseosa 500ml', 'Porción de palomitas de maíz con mantequilla de tamaño mediano.', 5.50, 'snack', 'comida_3_000.png'),
+('Chocolate mini', 'Barra de chocolate negro, ideal como acompañamiento dulce.', 3.00, 'Dulce', 'comida_4_000.png');
 -- --------------------------------------------------------
--- Update sequences to match the current maximum IDs
--- --------------------------------------------------------
+-- Update sequences to match the current maximum IDs 
+-- -------------------------------------------------------- 
 
 -- Update sequence for Clientes
 SELECT setval('clientes_id_cliente_seq', (SELECT COALESCE(MAX(id_cliente), 1) FROM Clientes));
