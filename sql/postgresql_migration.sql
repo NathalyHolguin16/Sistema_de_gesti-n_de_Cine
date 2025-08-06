@@ -116,6 +116,16 @@ CREATE TABLE BitacoraEmpleados (
     FOREIGN KEY (id_empleado) REFERENCES Empleados(id_empleado)
 );
 
+--tabla "Comidas"
+CREATE TABLE comida (
+    id_comida SERIAL PRIMARY KEY,
+    nombre_comida VARCHAR(100) NOT NULL,
+    descripcion VARCHAR(255),
+    precio NUMERIC(10,2) NOT NULL,
+    tipo VARCHAR(50) NOT NULL,
+    imagen VARCHAR(255)
+);
+
 -- --------------------------------------------------------
 -- Data insertion
 -- --------------------------------------------------------
@@ -285,6 +295,13 @@ INSERT INTO BitacoraEmpleados (id_bitacora, id_empleado, accion, detalles, fecha
 (62, 5, 'Inicio de sesión', 'El empleado luis inició sesión.', '2025-06-17 19:46:28'),
 (63, 5, 'Cierre de sesión', 'El empleado con ID 5 cerró sesión.', '2025-06-17 19:46:33');
 
+-- Inserción en la tabla Comidas
+
+INSERT INTO comida (nombre_comida, descripcion, precio, tipo, imagen) VALUES
+('Combo grande', 'Incluye una funda de palomitas grandes', 15.00, 'combo', 'comida_1_000.png'),
+('Gaseosa 500ml', 'Bebida fría del sabor que desee, en botella', 2.50, 'Bebida', 'comida_2_000.png'),
+('Palomitas medianas', 'Porción de palomitas de maíz con mantequilla', 5.50, 'snack', 'comida_3_000.png'),
+('Chocolate mini', 'Barra de chocolate negro, ideal como acompañamiento', 3.00, 'Dulce', 'comida_4_000.png');
 -- --------------------------------------------------------
 -- Update sequences to match the current maximum IDs
 -- --------------------------------------------------------
@@ -310,6 +327,9 @@ SELECT setval('bitacoraclientes_id_bitacora_seq', (SELECT COALESCE(MAX(id_bitaco
 -- Update sequence for BitacoraEmpleados
 SELECT setval('bitacoraempleados_id_bitacora_seq', (SELECT COALESCE(MAX(id_bitacora), 1) FROM BitacoraEmpleados));
 
+-- Secuencia para la tabla Comida
+SELECT setval('comida_id_comida_seq', (SELECT COALESCE(MAX(id_comida), 1) FROM comida));
+
 -- --------------------------------------------------------
 -- Create indexes for better performance (optional)
 -- --------------------------------------------------------
@@ -324,5 +344,5 @@ CREATE INDEX idx_bitacora_clientes_cliente ON BitacoraClientes(id_cliente);
 CREATE INDEX idx_bitacora_clientes_fecha ON BitacoraClientes(fecha_hora);
 CREATE INDEX idx_bitacora_empleados_empleado ON BitacoraEmpleados(id_empleado);
 CREATE INDEX idx_bitacora_empleados_fecha ON BitacoraEmpleados(fecha_hora);
-
+CREATE INDEX idx_comida_tipo ON comida(tipo);
 -- Migration completed successfully!

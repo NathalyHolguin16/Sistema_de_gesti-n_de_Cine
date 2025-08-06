@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Administración de Comidas</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/administracion_comidas.css">
+</head>
+<body>
+  <nav id="adminNav">
+    <a href="index.html">Inicio</a>
+    <a href="test_peliculas.html">Administrar Películas</a>
+    <a href="administracion_empleados.html">Administrar Empleados</a>
+    <a href="administracion_comidas.html">Administrar Comidas</a>
+    <button id="logoutAdminBtn">Cerrar sesión</button>
+  </nav>
+
+  <h2 class="titulo-admin"><i class="fa-solid fa-utensils"></i> Administración de Comidas</h2>
+
+  <div class="peliculas-admin-container">
+    <form id="formAgregarComida" class="pelicula-form" enctype="multipart/form-data" autocomplete="off">
+      <input type="hidden" id="id_comida" name="id_comida" />
+
+      <label>
+        <i class="fa-solid fa-burger"></i> Nombre:
+        <input type="text" id="nombre_comida" name="nombre_comida" required placeholder="Ej: Combo Grande" />
+      </label>
+
+      <label>
+        <i class="fa-solid fa-dollar-sign"></i> Precio:
+        <input type="number" id="precio" name="precio" required step="0.01" min="0.01" placeholder="Ej: 15.00" />
+      </label>
+
+      <label>
+        <i class="fa-solid fa-tags"></i> Tipo:
+        <select id="tipo" name="tipo" required>
+          <option value="combo">Combo</option>
+          <option value="Bebida">Bebida</option>
+          <option value="snack">Snack</option>
+          <option value="Dulce">Dulce</option>
+        </select>
+      </label>
+
+      <label>
+        <i class="fa-solid fa-align-left"></i> Descripción:
+        <textarea id="descripcion" name="descripcion" placeholder="Descripción del producto..."></textarea>
+      </label>
+
+      <label>
+        <i class="fa-solid fa-image"></i> Imagen:
+        <input type="file" id="imagen" name="imagen" accept="image/*" />
+      </label>
+
+      <div class="form-btns">
+        <button type="submit" id="btnGuardar" class="ver-funciones-btn">
+          <i class="fa-solid fa-plus"></i> Agregar Comida
+        </button>
+        <button type="button" id="btnCancelar" style="display:none;">
+          <i class="fa-solid fa-xmark"></i> Cancelar edición
+        </button>
+      </div>
+    </form>
+
+    <div class="peliculas-lista">
+      <h3><i class="fa-solid fa-list"></i> Comidas Disponibles</h3>
+      <div id="comidasGrid" class="peliculas-grid"></div>
+    </div>
+  </div>
+
+  <script src="../js/administracion_comidas.js"></script>
+</body>
+</html>
