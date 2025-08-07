@@ -2,8 +2,12 @@
 // Incluir los archivos de funciones
 require_once("funciones/asientos_functions.php");
 require_once("funciones/auth_functions.php");
+require_once("funciones/trigger_functions.php");
 
 header('Content-Type: application/json');
+
+// Inicializar el manejador de triggers
+$triggerManager = new TriggerManager($conn);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents("php://input"), true);
@@ -32,7 +36,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-      
+
+        // Después de modificar asientos
+        $triggerManager->afterAsientoChange('UPDATE', [
+            'id_asiento' => $asiento_id,
+            'estado' => 'ocupado' 
+        ]);
 
         // Después de crear la entrada, obtener su ID y los asientos asociados
         $entrada_id = $conn->lastInsertId();
