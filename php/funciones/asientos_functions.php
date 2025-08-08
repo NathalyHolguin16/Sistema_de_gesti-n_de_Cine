@@ -65,11 +65,17 @@ function verificar_disponibilidad_asientos($funcion_id, $asientos) {
  * Sincroniza los asientos en la base de datos
  * @return bool true si la sincronización fue exitosa
  */
-function sync_asientos() {
+function sync_asientos($funcion_id = null) {
     global $conn;
     
     try {
-        // Llamar a la función de la base de datos
+        // Llamar al procedimiento almacenado si se proporciona una función específica
+        if ($funcion_id) {
+            $stmt = $conn->prepare("CALL actualizar_disponibilidad_sala(?)");
+            $stmt->execute([$funcion_id]);
+        }
+        
+        // Llamar a la función general de sincronización
         $query = "SELECT public.sync_asientos()";
         $stmt = $conn->prepare($query);
         $stmt->execute();

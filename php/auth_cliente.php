@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($data['action']) && $data['action'] === 'register') {
         if (!isset($data['password']) || !isset($data['nombre']) || !isset($data['correo'])) {
             echo json_encode(['success' => false, 'error' => 'Datos incompletos']);
-            exit;
+            exit; 
         }
 
         // Validar fortaleza de la contraseña
