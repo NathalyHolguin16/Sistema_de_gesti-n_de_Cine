@@ -4,7 +4,7 @@ $host = "aws-0-us-east-2.pooler.supabase.com";
 $port = "5432";           
 $dbname = "postgres"; 
 $user = "postgres.etureuqikqzbrvlkuvds"; 
-$password = "8G9K2ZkqCRDgnZOO";      
+$password = "2vm0Na39xjnxvZSh";      
 
 try {
     // Crear la conexión con PostgreSQL usando PDO

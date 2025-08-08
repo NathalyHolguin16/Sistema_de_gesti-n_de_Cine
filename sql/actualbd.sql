@@ -7095,3 +7095,583 @@ ALTER EVENT TRIGGER pgrst_drop_watch OWNER TO supabase_admin;
 -- PostgreSQL database dump complete
 --
 
+-- ==========================================
+-- EXTENSIONES ADICIONALES PARA EL SISTEMA DE CINE
+-- Creado por: Asistente de GitHub Copilot
+-- Fecha: 2025-08-08
+-- ==========================================
+
+-- VISTAS (2)
+-- ==========================================
+
+--
+-- Vista 1: Vista de funciones con información completa
+--
+CREATE OR REPLACE VIEW public.vista_funciones_completa AS
+SELECT 
+    f.id_funcion,
+    p.titulo AS pelicula,
+    p.genero,
+    p.clasificacion,
+    p.duracion_minutos,
+    s.nombre_sala,
+    s.capacidad AS capacidad_sala,
+    f.fecha,
+    f.hora_inicio,
+    f.precio,
+    (s.capacidad - COALESCE(entradas_vendidas.total_entradas, 0)) AS asientos_disponibles,
+    COALESCE(entradas_vendidas.total_entradas, 0) AS entradas_vendidas,
+    CASE 
+        WHEN COALESCE(entradas_vendidas.total_entradas, 0) = s.capacidad THEN 'AGOTADO'
+        WHEN COALESCE(entradas_vendidas.total_entradas, 0) > (s.capacidad * 0.8) THEN 'POCAS_ENTRADAS'
+        ELSE 'DISPONIBLE'
+    END AS estado_disponibilidad
+FROM public.funciones f
+INNER JOIN public.peliculas p ON f.id_pelicula = p.id_pelicula
+INNER JOIN public.sala s ON f.id_sala = s.id_sala
+LEFT JOIN (
+    SELECT 
+        id_funcion,
+        SUM(cantidad) AS total_entradas
+    FROM public.entradas
+    GROUP BY id_funcion
+) entradas_vendidas ON f.id_funcion = entradas_vendidas.id_funcion
+WHERE p.estado = true;
+
+COMMENT ON VIEW public.vista_funciones_completa IS 'Vista que muestra información completa de funciones con disponibilidad de asientos';
+
+--
+-- Vista 2: Vista de reporte de ventas por película
+--
+CREATE OR REPLACE VIEW public.vista_reporte_ventas AS
+SELECT 
+    p.id_pelicula,
+    p.titulo,
+    p.genero,
+    p.clasificacion,
+    COUNT(DISTINCT f.id_funcion) AS total_funciones,
+    COUNT(e.id_entrada) AS total_entradas_vendidas,
+    SUM(e.cantidad) AS total_boletos_vendidos,
+    SUM(e.total_pagado) AS ingresos_totales,
+    ROUND(AVG(e.total_pagado), 2) AS promedio_venta,
+    MIN(e.fecha_compra) AS primera_venta,
+    MAX(e.fecha_compra) AS ultima_venta,
+    COUNT(DISTINCT e.id_cliente) AS clientes_unicos
+FROM public.peliculas p
+LEFT JOIN public.funciones f ON p.id_pelicula = f.id_pelicula
+LEFT JOIN public.entradas e ON f.id_funcion = e.id_funcion
+WHERE p.estado = true
+GROUP BY p.id_pelicula, p.titulo, p.genero, p.clasificacion
+ORDER BY ingresos_totales DESC NULLS LAST;
+
+COMMENT ON VIEW public.vista_reporte_ventas IS 'Vista que muestra reporte de ventas e ingresos por película';
+
+-- TRIGGERS (3)
+-- ==========================================
+
+--
+-- Trigger 1: Auditoría automática de cambios en películas
+--
+CREATE OR REPLACE FUNCTION public.audit_peliculas_changes()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        INSERT INTO public.bitacoraempleados (
+            id_empleado, 
+            accion, 
+            detalles, 
+            fecha_hora
+        ) VALUES (
+            1, -- ID de empleado del sistema (ajustar según necesidad)
+            'PELICULA_CREADA',
+            'Nueva película agregada: ' || NEW.titulo || ' (ID: ' || NEW.id_pelicula || ')',
+            CURRENT_TIMESTAMP
+        );
+        RETURN NEW;
+    ELSIF TG_OP = 'UPDATE' THEN
+        INSERT INTO public.bitacoraempleados (
+            id_empleado, 
+            accion, 
+            detalles, 
+            fecha_hora
+        ) VALUES (
+            1, -- ID de empleado del sistema
+            'PELICULA_ACTUALIZADA',
+            'Película modificada: ' || NEW.titulo || ' (ID: ' || NEW.id_pelicula || '). Estado: ' || 
+            CASE WHEN OLD.estado != NEW.estado THEN 'Cambio de estado de ' || OLD.estado || ' a ' || NEW.estado
+                 ELSE 'Información actualizada'
+            END,
+            CURRENT_TIMESTAMP
+        );
+        RETURN NEW;
+    ELSIF TG_OP = 'DELETE' THEN
+        INSERT INTO public.bitacoraempleados (
+            id_empleado, 
+            accion, 
+            detalles, 
+            fecha_hora
+        ) VALUES (
+            1, -- ID de empleado del sistema
+            'PELICULA_ELIMINADA',
+            'Película eliminada: ' || OLD.titulo || ' (ID: ' || OLD.id_pelicula || ')',
+            CURRENT_TIMESTAMP
+        );
+        RETURN OLD;
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_audit_peliculas
+    AFTER INSERT OR UPDATE OR DELETE ON public.peliculas
+    FOR EACH ROW EXECUTE FUNCTION public.audit_peliculas_changes();
+
+COMMENT ON FUNCTION public.audit_peliculas_changes() IS 'Función para auditar cambios en la tabla películas';
+
+--
+-- Trigger 2: Validación de capacidad de sala antes de insertar función
+--
+CREATE OR REPLACE FUNCTION public.validate_funcion_capacity()
+RETURNS TRIGGER AS $$
+DECLARE
+    sala_capacidad INTEGER;
+    funciones_simultaneas INTEGER;
+BEGIN
+    -- Obtener capacidad de la sala
+    SELECT capacidad INTO sala_capacidad
+    FROM public.sala 
+    WHERE id_sala = NEW.id_sala;
+    
+    -- Verificar si hay funciones en el mismo horario en la misma sala
+    SELECT COUNT(*) INTO funciones_simultaneas
+    FROM public.funciones
+    WHERE id_sala = NEW.id_sala 
+      AND fecha = NEW.fecha
+      AND hora_inicio = NEW.hora_inicio
+      AND (TG_OP = 'INSERT' OR (TG_OP = 'UPDATE' AND id_funcion != NEW.id_funcion));
+    
+    IF funciones_simultaneas > 0 THEN
+        RAISE EXCEPTION 'Ya existe una función programada en la sala % para la fecha % a las %', 
+            NEW.id_sala, NEW.fecha, NEW.hora_inicio;
+    END IF;
+    
+    -- Validar que la sala existe y tiene capacidad
+    IF sala_capacidad IS NULL THEN
+        RAISE EXCEPTION 'La sala con ID % no existe', NEW.id_sala;
+    END IF;
+    
+    IF sala_capacidad <= 0 THEN
+        RAISE EXCEPTION 'La sala % no tiene capacidad válida', NEW.id_sala;
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_validate_funcion
+    BEFORE INSERT OR UPDATE ON public.funciones
+    FOR EACH ROW EXECUTE FUNCTION public.validate_funcion_capacity();
+
+COMMENT ON FUNCTION public.validate_funcion_capacity() IS 'Función para validar disponibilidad de sala antes de crear/actualizar función';
+
+--
+-- Trigger 3: Actualización automática de disponibilidad de asientos
+--
+CREATE OR REPLACE FUNCTION public.update_asientos_disponibles()
+RETURNS TRIGGER AS $$
+DECLARE
+    sala_capacidad INTEGER;
+    entradas_vendidas INTEGER;
+    funcion_id INTEGER;
+BEGIN
+    -- Determinar la función afectada
+    IF TG_OP = 'DELETE' THEN
+        funcion_id := OLD.id_funcion;
+    ELSE
+        funcion_id := NEW.id_funcion;
+    END IF;
+    
+    -- Obtener capacidad de la sala para esta función
+    SELECT s.capacidad INTO sala_capacidad
+    FROM public.funciones f
+    INNER JOIN public.sala s ON f.id_sala = s.id_sala
+    WHERE f.id_funcion = funcion_id;
+    
+    -- Contar entradas vendidas para esta función
+    SELECT COALESCE(SUM(cantidad), 0) INTO entradas_vendidas
+    FROM public.entradas
+    WHERE id_funcion = funcion_id;
+    
+    -- Verificar que no se exceda la capacidad
+    IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
+        IF entradas_vendidas > sala_capacidad THEN
+            RAISE EXCEPTION 'No se pueden vender % entradas. Capacidad máxima de la sala: %', 
+                entradas_vendidas, sala_capacidad;
+        END IF;
+    END IF;
+    
+    -- Log del cambio en disponibilidad
+    INSERT INTO public.bitacoraempleados (
+        id_empleado, 
+        accion, 
+        detalles, 
+        fecha_hora
+    ) VALUES (
+        COALESCE(NEW.id_cliente, OLD.id_cliente, 1),
+        CASE 
+            WHEN TG_OP = 'INSERT' THEN 'ENTRADA_VENDIDA'
+            WHEN TG_OP = 'UPDATE' THEN 'ENTRADA_MODIFICADA'
+            WHEN TG_OP = 'DELETE' THEN 'ENTRADA_CANCELADA'
+        END,
+        'Función ID: ' || funcion_id || '. Asientos disponibles: ' || (sala_capacidad - entradas_vendidas),
+        CURRENT_TIMESTAMP
+    );
+    
+    IF TG_OP = 'DELETE' THEN
+        RETURN OLD;
+    ELSE
+        RETURN NEW;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_asientos
+    AFTER INSERT OR UPDATE OR DELETE ON public.entradas
+    FOR EACH ROW EXECUTE FUNCTION public.update_asientos_disponibles();
+
+COMMENT ON FUNCTION public.update_asientos_disponibles() IS 'Función para actualizar y validar disponibilidad de asientos automáticamente';
+
+-- PROCEDIMIENTOS ALMACENADOS (4)
+-- ==========================================
+
+--
+-- Procedimiento 1: Crear función con validaciones completas
+--
+CREATE OR REPLACE FUNCTION public.sp_crear_funcion(
+    p_id_pelicula INTEGER,
+    p_fecha DATE,
+    p_hora_inicio TIME,
+    p_precio NUMERIC(6,2),
+    p_id_sala INTEGER
+)
+RETURNS INTEGER AS $$
+DECLARE
+    v_nuevo_id INTEGER;
+    v_pelicula_activa BOOLEAN;
+    v_sala_existe BOOLEAN;
+    v_conflicto_horario BOOLEAN;
+BEGIN
+    -- Validar que la película existe y está activa
+    SELECT estado INTO v_pelicula_activa
+    FROM public.peliculas
+    WHERE id_pelicula = p_id_pelicula;
+    
+    IF v_pelicula_activa IS NULL THEN
+        RAISE EXCEPTION 'La película con ID % no existe', p_id_pelicula;
+    END IF;
+    
+    IF v_pelicula_activa = FALSE THEN
+        RAISE EXCEPTION 'La película con ID % no está activa', p_id_pelicula;
+    END IF;
+    
+    -- Validar que la sala existe
+    SELECT COUNT(*) > 0 INTO v_sala_existe
+    FROM public.sala
+    WHERE id_sala = p_id_sala;
+    
+    IF NOT v_sala_existe THEN
+        RAISE EXCEPTION 'La sala con ID % no existe', p_id_sala;
+    END IF;
+    
+    -- Validar fecha futura
+    IF p_fecha < CURRENT_DATE THEN
+        RAISE EXCEPTION 'No se puede programar una función en fecha pasada';
+    END IF;
+    
+    -- Validar conflicto de horarios
+    SELECT COUNT(*) > 0 INTO v_conflicto_horario
+    FROM public.funciones
+    WHERE id_sala = p_id_sala 
+      AND fecha = p_fecha 
+      AND hora_inicio = p_hora_inicio;
+    
+    IF v_conflicto_horario THEN
+        RAISE EXCEPTION 'Ya existe una función en la sala % para la fecha % a las %', 
+            p_id_sala, p_fecha, p_hora_inicio;
+    END IF;
+    
+    -- Insertar la nueva función
+    INSERT INTO public.funciones (id_pelicula, fecha, hora_inicio, precio, id_sala)
+    VALUES (p_id_pelicula, p_fecha, p_hora_inicio, p_precio, p_id_sala)
+    RETURNING id_funcion INTO v_nuevo_id;
+    
+    -- Log de la operación
+    INSERT INTO public.bitacoraempleados (
+        id_empleado, 
+        accion, 
+        detalles, 
+        fecha_hora
+    ) VALUES (
+        1,
+        'FUNCION_CREADA',
+        'Nueva función creada (ID: ' || v_nuevo_id || ') para película ID: ' || p_id_pelicula,
+        CURRENT_TIMESTAMP
+    );
+    
+    RETURN v_nuevo_id;
+END;
+$$ LANGUAGE plpgsql;
+
+COMMENT ON FUNCTION public.sp_crear_funcion IS 'Procedimiento para crear una función con validaciones completas';
+
+--
+-- Procedimiento 2: Generar reporte de ventas por periodo
+--
+CREATE OR REPLACE FUNCTION public.sp_reporte_ventas_periodo(
+    p_fecha_inicio DATE,
+    p_fecha_fin DATE
+)
+RETURNS TABLE (
+    pelicula VARCHAR(100),
+    total_funciones BIGINT,
+    total_entradas BIGINT,
+    total_boletos NUMERIC,
+    ingresos_totales NUMERIC,
+    promedio_por_funcion NUMERIC
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        p.titulo::VARCHAR(100) AS pelicula,
+        COUNT(DISTINCT f.id_funcion) AS total_funciones,
+        COUNT(e.id_entrada) AS total_entradas,
+        COALESCE(SUM(e.cantidad), 0) AS total_boletos,
+        COALESCE(SUM(e.total_pagado), 0) AS ingresos_totales,
+        CASE 
+            WHEN COUNT(DISTINCT f.id_funcion) > 0 THEN 
+                ROUND(COALESCE(SUM(e.total_pagado), 0) / COUNT(DISTINCT f.id_funcion), 2)
+            ELSE 0
+        END AS promedio_por_funcion
+    FROM public.peliculas p
+    LEFT JOIN public.funciones f ON p.id_pelicula = f.id_pelicula
+        AND f.fecha BETWEEN p_fecha_inicio AND p_fecha_fin
+    LEFT JOIN public.entradas e ON f.id_funcion = e.id_funcion
+        AND e.fecha_compra::DATE BETWEEN p_fecha_inicio AND p_fecha_fin
+    WHERE p.estado = true
+    GROUP BY p.id_pelicula, p.titulo
+    HAVING COUNT(DISTINCT f.id_funcion) > 0 OR COUNT(e.id_entrada) > 0
+    ORDER BY ingresos_totales DESC;
+END;
+$$ LANGUAGE plpgsql;
+
+COMMENT ON FUNCTION public.sp_reporte_ventas_periodo IS 'Procedimiento para generar reporte de ventas por período de fechas';
+
+--
+-- Procedimiento 3: Procesar venta de entrada con validaciones
+--
+CREATE OR REPLACE FUNCTION public.sp_procesar_venta_entrada(
+    p_id_funcion INTEGER,
+    p_id_cliente INTEGER,
+    p_cantidad INTEGER,
+    p_asientos VARCHAR(255) DEFAULT NULL,
+    p_id_comida VARCHAR DEFAULT NULL
+)
+RETURNS INTEGER AS $$
+DECLARE
+    v_precio_funcion NUMERIC(6,2);
+    v_total_pagado NUMERIC(8,2);
+    v_capacidad_sala INTEGER;
+    v_entradas_vendidas INTEGER;
+    v_asientos_disponibles INTEGER;
+    v_nueva_entrada_id INTEGER;
+    v_cliente_existe BOOLEAN;
+    v_funcion_existe BOOLEAN;
+BEGIN
+    -- Validar que el cliente existe
+    SELECT COUNT(*) > 0 INTO v_cliente_existe
+    FROM public.clientes
+    WHERE id_cliente = p_id_cliente;
+    
+    IF NOT v_cliente_existe THEN
+        RAISE EXCEPTION 'El cliente con ID % no existe', p_id_cliente;
+    END IF;
+    
+    -- Validar que la función existe y obtener precio
+    SELECT f.precio INTO v_precio_funcion
+    FROM public.funciones f
+    INNER JOIN public.peliculas p ON f.id_pelicula = p.id_pelicula
+    WHERE f.id_funcion = p_id_funcion AND p.estado = true;
+    
+    IF v_precio_funcion IS NULL THEN
+        RAISE EXCEPTION 'La función con ID % no existe o la película no está activa', p_id_funcion;
+    END IF;
+    
+    -- Obtener capacidad de sala y entradas ya vendidas
+    SELECT s.capacidad, COALESCE(SUM(e.cantidad), 0)
+    INTO v_capacidad_sala, v_entradas_vendidas
+    FROM public.funciones f
+    INNER JOIN public.sala s ON f.id_sala = s.id_sala
+    LEFT JOIN public.entradas e ON f.id_funcion = e.id_funcion
+    WHERE f.id_funcion = p_id_funcion
+    GROUP BY s.capacidad;
+    
+    v_asientos_disponibles := v_capacidad_sala - v_entradas_vendidas;
+    
+    -- Validar disponibilidad
+    IF p_cantidad > v_asientos_disponibles THEN
+        RAISE EXCEPTION 'No hay suficientes asientos disponibles. Solicitados: %, Disponibles: %', 
+            p_cantidad, v_asientos_disponibles;
+    END IF;
+    
+    -- Validar cantidad positiva
+    IF p_cantidad <= 0 THEN
+        RAISE EXCEPTION 'La cantidad debe ser mayor a 0';
+    END IF;
+    
+    -- Calcular total a pagar
+    v_total_pagado := v_precio_funcion * p_cantidad;
+    
+    -- Insertar la entrada
+    INSERT INTO public.entradas (
+        id_funcion, 
+        id_cliente, 
+        cantidad, 
+        total_pagado, 
+        asientos, 
+        id_comida,
+        fecha_compra
+    ) VALUES (
+        p_id_funcion,
+        p_id_cliente,
+        p_cantidad,
+        v_total_pagado,
+        p_asientos,
+        p_id_comida,
+        CURRENT_TIMESTAMP
+    ) RETURNING id_entrada INTO v_nueva_entrada_id;
+    
+    -- Log de la venta
+    INSERT INTO public.bitacoraclientes (
+        id_cliente,
+        accion,
+        detalles,
+        fecha_hora
+    ) VALUES (
+        p_id_cliente,
+        'COMPRA_ENTRADA',
+        'Compra de ' || p_cantidad || ' entrada(s) para función ID: ' || p_id_funcion || 
+        '. Total pagado: $' || v_total_pagado,
+        CURRENT_TIMESTAMP
+    );
+    
+    RETURN v_nueva_entrada_id;
+END;
+$$ LANGUAGE plpgsql;
+
+COMMENT ON FUNCTION public.sp_procesar_venta_entrada IS 'Procedimiento para procesar venta de entrada con todas las validaciones necesarias';
+
+--
+-- Procedimiento 4: Obtener estadísticas del cine
+--
+CREATE OR REPLACE FUNCTION public.sp_estadisticas_cine()
+RETURNS TABLE (
+    total_peliculas_activas BIGINT,
+    total_salas BIGINT,
+    total_clientes BIGINT,
+    total_empleados BIGINT,
+    funciones_hoy BIGINT,
+    funciones_mes_actual BIGINT,
+    ingresos_mes_actual NUMERIC,
+    ingresos_dia_actual NUMERIC,
+    pelicula_mas_popular VARCHAR(100),
+    sala_mas_utilizada VARCHAR,
+    promedio_ocupacion_salas NUMERIC
+) AS $$
+DECLARE
+    v_mes_actual DATE;
+    v_dia_actual DATE;
+BEGIN
+    v_mes_actual := DATE_TRUNC('month', CURRENT_DATE);
+    v_dia_actual := CURRENT_DATE;
+    
+    RETURN QUERY
+    SELECT 
+        -- Películas activas
+        (SELECT COUNT(*) FROM public.peliculas WHERE estado = true),
+        
+        -- Total salas
+        (SELECT COUNT(*) FROM public.sala),
+        
+        -- Total clientes
+        (SELECT COUNT(*) FROM public.clientes),
+        
+        -- Total empleados
+        (SELECT COUNT(*) FROM public.empleados),
+        
+        -- Funciones hoy
+        (SELECT COUNT(*) 
+         FROM public.funciones f
+         INNER JOIN public.peliculas p ON f.id_pelicula = p.id_pelicula
+         WHERE f.fecha = v_dia_actual AND p.estado = true),
+        
+        -- Funciones este mes
+        (SELECT COUNT(*) 
+         FROM public.funciones f
+         INNER JOIN public.peliculas p ON f.id_pelicula = p.id_pelicula
+         WHERE f.fecha >= v_mes_actual AND p.estado = true),
+        
+        -- Ingresos este mes
+        (SELECT COALESCE(SUM(e.total_pagado), 0)
+         FROM public.entradas e
+         INNER JOIN public.funciones f ON e.id_funcion = f.id_funcion
+         WHERE e.fecha_compra >= v_mes_actual),
+        
+        -- Ingresos hoy
+        (SELECT COALESCE(SUM(e.total_pagado), 0)
+         FROM public.entradas e
+         INNER JOIN public.funciones f ON e.id_funcion = f.id_funcion
+         WHERE e.fecha_compra::DATE = v_dia_actual),
+        
+        -- Película más popular (por entradas vendidas)
+        (SELECT p.titulo::VARCHAR(100)
+         FROM public.peliculas p
+         INNER JOIN public.funciones f ON p.id_pelicula = f.id_pelicula
+         INNER JOIN public.entradas e ON f.id_funcion = e.id_funcion
+         WHERE p.estado = true
+         GROUP BY p.id_pelicula, p.titulo
+         ORDER BY SUM(e.cantidad) DESC
+         LIMIT 1),
+        
+        -- Sala más utilizada
+        (SELECT s.nombre_sala::VARCHAR
+         FROM public.sala s
+         INNER JOIN public.funciones f ON s.id_sala = f.id_sala
+         GROUP BY s.id_sala, s.nombre_sala
+         ORDER BY COUNT(f.id_funcion) DESC
+         LIMIT 1),
+        
+        -- Promedio de ocupación de salas (%)
+        (SELECT ROUND(
+            CASE 
+                WHEN COUNT(f.id_funcion) > 0 THEN
+                    (SUM(COALESCE(entradas_por_funcion.total_entradas, 0))::NUMERIC / 
+                     SUM(s.capacidad)::NUMERIC) * 100
+                ELSE 0
+            END, 2)
+         FROM public.sala s
+         LEFT JOIN public.funciones f ON s.id_sala = f.id_sala 
+             AND f.fecha >= v_mes_actual
+         LEFT JOIN (
+             SELECT e.id_funcion, SUM(e.cantidad) as total_entradas
+             FROM public.entradas e
+             GROUP BY e.id_funcion
+         ) entradas_por_funcion ON f.id_funcion = entradas_por_funcion.id_funcion);
+END;
+$$ LANGUAGE plpgsql;
+
+COMMENT ON FUNCTION public.sp_estadisticas_cine IS 'Procedimiento para obtener estadísticas generales del cine';
+
+-- ==========================================
+-- FIN DE EXTENSIONES ADICIONALES
+-- ==========================================
+
