@@ -4,7 +4,7 @@ $host = "aws-0-us-east-2.pooler.supabase.com";
 $port = "5432";           
 $dbname = "postgres"; 
 $user = "postgres.etureuqikqzbrvlkuvds"; 
-$password = "8G9K2ZkqCRDgnZOO";      
+$password = "2vm0Na39xjnxvZSh";      
 
 try {
     // Crear la conexión con PostgreSQL usando PDO
@@ -16,7 +16,14 @@ try {
     ]);
     
 } catch (PDOException $e) {
-    die("Error de conexión a PostgreSQL: " . $e->getMessage());
+    // En lugar de die(), enviar un JSON con el error
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => false,
+        'error' => 'Error de conexión a PostgreSQL: ' . $e->getMessage()
+    ]);
+    exit;
 }
 
+// Si no hay error de conexión, no enviamos nada
 ?>

@@ -1,9 +1,25 @@
 <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-cache, must-revalidate');
+
+// Asegurarse de que no haya salida antes de este punto
+ob_start();
+
 require_once("conexion.php");
 $resourcesDir = realpath(__DIR__ . '/../resources/');
+
+// Si hay algún error en el script, devolver un JSON
+set_error_handler(function($severity, $message, $file, $line) {
+    echo json_encode([
+        'success' => false,
+        'error' => $message,
+        'file' => $file,
+        'line' => $line
+    ]);
+    exit;
+});
+
+try {
 
 // Obtener película por ID
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id_pelicula'])) {
@@ -70,6 +86,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     } catch (PDOException $e) {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
+    exit;
+}
+
+} catch (Exception $e) {
+    echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage()
+    ]);
     exit;
 }
 
